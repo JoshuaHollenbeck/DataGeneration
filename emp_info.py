@@ -2975,7 +2975,7 @@ for i in tqdm(range(records)):
             generate_address(),
             generate_address_2(),
             fake.city(),
-            fake.state(),
+            fake.state_abbr(),
             generate_zip().zfill(5),
             generate_ssn_front(),
             generate_ssn_back(),

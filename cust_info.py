@@ -2416,6 +2416,20 @@ def generate_ssn_back():
     serial_num = fake.random_number(digits=4, fix_len=True)
     return serial_num
 
+def generate_exp_date():
+    exp_month = random.randint(1,12)
+    exp_year = random.randint(2023,2035)
+    return f"{exp_month}/{exp_year}"
+
+def generate_voice_auth():
+        return random.getrandbits(1)
+
+def generate_do_not_call():
+        return random.getrandbits(1)
+
+def generate_share_affiliates():
+        return random.getrandbits(1)
+
 all_data = []
 
 records = 5
@@ -2482,6 +2496,8 @@ for i in tqdm(range(records)):
 
     cust_secondary_id = random.randint(100000, 1000000000)
 
+    state = fake.state_abbr(include_territories = True, include_freely_associated_states = False)
+
     all_data.append(
         [
             str(cust_secondary_id).zfill(10),
@@ -2496,13 +2512,20 @@ for i in tqdm(range(records)):
             generate_address(),
             generate_address_2(),
             fake.city(),
-            fake.state(),
+            state,
             fake.postcode().zfill(5),
             generate_employment(generated_num),
             generate_employer(generated_num),
             stripped_job,
             generate_ssn_front(),
             generate_ssn_back(),
+            state,
+            fake.passport_number(),
+            generate_exp_date(),
+            fake.last_name(),
+            generate_voice_auth(),
+            generate_do_not_call(),
+            generate_share_affiliates(),
         ]
     )
 
@@ -2528,6 +2551,13 @@ df_all_data = pd.DataFrame(
         "occupation",
         "encrypted_tax_a",
         "tax_b",
+        "dl_state",
+        "dl_num",
+        "dl_exp",
+        "mothers_maiden",
+        "voice_auth",
+        "do_not_call",
+        "share_affiliates",
     ],
 )
 
@@ -2536,13 +2566,17 @@ df_all_data["cust_id"] = range(1, len(df_all_data) + 1)
 
 df_cust_contact = df_all_data[["cust_id", "email", "phone", "address", "address_2", "city", "state", "zip_code"]].copy()
 df_cust_emp = df_all_data[["cust_id", "employment_status", "employer_name", "occupation"]].copy()
+df_cust_identification = df_all_data[["cust_id", "state", "dl_num", "dl_exp", "mothers_maiden"]].copy()
 df_cust_info = df_all_data[["cust_id", "cust_secondary_id", "first_name", "middle_name", "last_name", "suffix", "date_of_birth", "client_since"]].copy()
+df_cust_privacy = df_all_data[["cust_id", "voice_auth", "do_not_call", "share_affiliates"]].copy()
 df_cust_tax = df_all_data[["cust_id", "encrypted_tax_a", "tax_b"]].copy()
 
 dataframes = [
     (df_cust_contact, "cust_contact.csv"),
     (df_cust_emp, "cust_emp.csv"),
+    (df_cust_identification, "cust_identification.csv"),
     (df_cust_info, "cust_info.csv"),
+    (df_cust_privacy, "cust_privacy.csv"),
     (df_cust_tax, "cust_tax.csv"),
 ]
 
