@@ -2425,14 +2425,32 @@ def generate_beneficiary_ssn_back():
     serial_num = fake.random_number(digits=4, fix_len=True)
     return serial_num
 
-def generate_power_of_attorney_ssn_front():
+def generate_job(rand_num):
+    return fake.job() if rand_num == 1 else None
+
+def generate_power_of_attorney_role(rand_num):
+    power_of_attorney_list = [
+        "Power of Attorney",
+        "Limited Power of Attorney",
+        "Durable Power of Attorney"
+    ]
+    client_power_of_attorney = random.choice(power_of_attorney_list)
+    return client_power_of_attorney if rand_num == 1 else None
+
+def generate_power_of_attorney_first_name(rand_num):
+    return fake.first_name() if rand_num == 1 else None
+
+def generate_power_of_attorney_last_name(rand_num):
+    return fake.last_name() if rand_num == 1 else None
+
+def generate_power_of_attorney_ssn_front(rand_num):
     area_num = fake.random_number(digits=3, fix_len=True)
     group_num = fake.random_number(digits=2, fix_len=True)
-    return f"{area_num}-{group_num}"
+    return f"{area_num}-{group_num}" if rand_num == 1 else None
 
-def generate_power_of_attorney_ssn_back():
+def generate_power_of_attorney_ssn_back(rand_num):
     serial_num = fake.random_number(digits=4, fix_len=True)
-    return serial_num
+    return serial_num if rand_num == 1 else None
 
 def generate_exp_date():
     exp_month = random.randint(1,12)
@@ -2537,15 +2555,6 @@ def generate_beneficiary_relationship():
 def generate_beneficiary_portion():
     return "100%"
 
-def generate_power_of_attorney_role():
-    power_of_attorney_list = [
-        "Power of Attorney",
-        "Limited Power of Attorney",
-        "Durable Power of Attorney"
-    ]
-    client_power_of_attorney = random.choice(power_of_attorney_list)
-    return client_power_of_attorney
-
 all_data = []
 
 records = 5
@@ -2596,6 +2605,11 @@ for i in tqdm(range(records)):
         generated_num = 1
     else:
         generated_num = 0
+
+    if random.random() < 0.34:
+        generated_poa_num = 1
+    else:
+        generated_poa_num = 0
 
     employer = [
         fake.first_name().title() + " " + fake.company_suffix(),
@@ -2701,11 +2715,11 @@ for i in tqdm(range(records)):
             generate_beneficiary_ssn_back(),
             generate_beneficiary_relationship(),
             generate_beneficiary_portion(),
-            generate_power_of_attorney_role(),
-            fake.first_name(),
-            fake.last_name(),
-            generate_power_of_attorney_ssn_front(),
-            generate_power_of_attorney_ssn_back(),
+            generate_power_of_attorney_role(generated_poa_num),
+            generate_power_of_attorney_first_name(generated_poa_num),
+            generate_power_of_attorney_last_name(generated_poa_num),
+            generate_power_of_attorney_ssn_front(generated_poa_num),
+            generate_power_of_attorney_ssn_back(generated_poa_num),
         ]
     )
 
