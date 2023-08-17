@@ -2416,39 +2416,34 @@ def generate_ssn_back():
     serial_num = fake.random_number(digits=4, fix_len=True)
     return serial_num
 
-def generate_beneficiary_ssn_front():
+def generate_bene_ssn_front():
     area_num = fake.random_number(digits=3, fix_len=True)
     group_num = fake.random_number(digits=2, fix_len=True)
     return f"{area_num}-{group_num}"
 
-def generate_beneficiary_ssn_back():
+def generate_bene_ssn_back():
     serial_num = fake.random_number(digits=4, fix_len=True)
     return serial_num
 
 def generate_job(rand_num):
     return fake.job() if rand_num == 1 else None
 
-def generate_power_of_attorney_role(rand_num):
-    power_of_attorney_list = [
-        "Power of Attorney",
-        "Limited Power of Attorney",
-        "Durable Power of Attorney"
-    ]
-    client_power_of_attorney = random.choice(power_of_attorney_list)
-    return client_power_of_attorney if rand_num == 1 else None
+def generate_poa_role(rand_num):
+    client_poa = random.randint(1,3)
+    return client_poa if rand_num == 1 else None
 
-def generate_power_of_attorney_first_name(rand_num):
+def generate_poa_first_name(rand_num):
     return fake.first_name() if rand_num == 1 else None
 
-def generate_power_of_attorney_last_name(rand_num):
+def generate_poa_last_name(rand_num):
     return fake.last_name() if rand_num == 1 else None
 
-def generate_power_of_attorney_ssn_front(rand_num):
+def generate_poa_ssn_front(rand_num):
     area_num = fake.random_number(digits=3, fix_len=True)
     group_num = fake.random_number(digits=2, fix_len=True)
     return f"{area_num}-{group_num}" if rand_num == 1 else None
 
-def generate_power_of_attorney_ssn_back(rand_num):
+def generate_poa_ssn_back(rand_num):
     serial_num = fake.random_number(digits=4, fix_len=True)
     return serial_num if rand_num == 1 else None
 
@@ -2476,50 +2471,19 @@ def generate_inital_contact_method():
     return 1 if random.random() < 0.23 else 0
 
 def generate_investment_objectives():
-    investment_objective_list = [
-        "Capital Preservation",
-        "Growth",
-        "Income",
-        "Speculation",
-        "Declined to Answer"
-    ]
-    client_investment_objective = random.choice(investment_objective_list)
+    client_investment_objective = random.randint(1,5)
     return client_investment_objective
 
 def generate_source_of_funding():
-    source_of_funding_list = [
-        "Salary / Wages / Savings",
-        "Social Security Benefits",
-        "Sale of Propery or Business",
-        "Family / Relatives / Inheritence",
-        "Investment Capital Gains",
-        "Gifts",
-        "Gambling / Lottery"
-    ]
-    client_source_of_funding = random.choice(source_of_funding_list)
+    client_source_of_funding = random.randint(1,7)
     return client_source_of_funding
 
 def generate_purpose_of_account():
-    purpose_of_account_list = [
-        "General Investing",
-        "Investing for Estate Planning",
-        "Investing for College",
-        "Investment of Pooled Assets",
-        "Investment for Tax Planning",
-        "Investment for Retirement",
-        "Other"
-    ]
-    client_purpose_of_account = random.choice(purpose_of_account_list)
+    client_purpose_of_account = random.randint(1,7)
     return client_purpose_of_account
     
 def generate_anticipated_activity():
-    anticipated_activity_list = [
-        "Less than 5",
-        "5 - 10",
-        "11 - 20",
-        "More than 20"
-    ]
-    client_anticipated_activity = random.choice(anticipated_activity_list)
+    client_anticipated_activity = random.randint(1,4)
     return client_anticipated_activity
 
 def generate_rep_id():
@@ -2536,23 +2500,11 @@ def generate_jurisdiction_country():
 def generate_acct_pass():
     word = fake.word()
 
-def generate_beneficiary_relationship():
-    beneficiary_relationship_list = [
-        "Child",
-        "Spouse",
-        "Parent",
-        "Sibling",
-        "Grandchild",
-        "Niece/Nephew",
-        "Aunt/Uncle",
-        "Cousin",
-        "Domestic Partner",
-        "Non-relative"
-    ]
-    client_beneficiary_relationship = random.choice(beneficiary_relationship_list)
-    return client_beneficiary_relationship
+def generate_bene_relationship():
+    client_bene_relationship = random.int(1,10)
+    return client_bene_relationship
 
-def generate_beneficiary_portion():
+def generate_bene_portion():
     return "100%"
 
 all_data = []
@@ -2632,24 +2584,7 @@ for i in tqdm(range(records)):
 
     state = fake.state_abbr(include_territories = True, include_freely_associated_states = False)
     
-    client_acct_type_list = [
-        "Savings Account",
-        "Checking Account",
-        "Money Market Account",
-        "Traditional IRA",
-        "Roth IRA",
-        "SEP IRA",
-        "SIMPLE IRA",
-        "Inherited IRA",
-        "Spousal IRA",
-        "401(k) Account",
-        "Individual Brokerage Account",
-        "Joint Brokerage Account",
-        "High-Yield Savings Account",
-        "Custodial Account",
-        "Trust Account"
-    ]
-    generate_acct_type = random.choice(client_acct_type_list)
+    generate_acct_type = random.ranint(1,25)
 
     registration_name = f"{account_holder_name} {generate_acct_type}"
 
@@ -2711,15 +2646,15 @@ for i in tqdm(range(records)):
             str(cust_secondary_id).zfill(10),
             fake.first_name(),
             last_name,
-            generate_beneficiary_ssn_front(),
-            generate_beneficiary_ssn_back(),
-            generate_beneficiary_relationship(),
-            generate_beneficiary_portion(),
-            generate_power_of_attorney_role(generated_poa_num),
-            generate_power_of_attorney_first_name(generated_poa_num),
-            generate_power_of_attorney_last_name(generated_poa_num),
-            generate_power_of_attorney_ssn_front(generated_poa_num),
-            generate_power_of_attorney_ssn_back(generated_poa_num),
+            generate_bene_ssn_front(),
+            generate_bene_ssn_back(),
+            generate_bene_relationship(),
+            generate_bene_portion(),
+            generate_poa_role(generated_poa_num),
+            generate_poa_first_name(generated_poa_num),
+            generate_poa_last_name(generated_poa_num),
+            generate_poa_ssn_front(generated_poa_num),
+            generate_poa_ssn_back(generated_poa_num),
         ]
     )
 
@@ -2756,41 +2691,44 @@ df_all_data = pd.DataFrame(
         "share_affiliates",
         
         # Account
+        "acct_id",
         "acct_num",
         "inital_contact_method",
         "acct_type",
         "registration_name",
-        "investment_objectives",
-        "source_of_funding",
-        "purpose_of_account",
-        "anticipated_activity",
+        "acct_objective",
+        "acct_funding",
+        "acct_purpose",
+        "acct_activity",
+        "cust_id",
+        "acct_nickname",
         "rep_id",
         "established_date",
         "acct_status",
-        "primary_contact_name",
-        "primary_contact_address",
-        "primary_contact_address_2",
-        "primary_contact_city",
-        "primary_contact_state",
-        "primary_contact_zip",
+        "contact_name",
+        "contact_address",
+        "contact_address_2",
+        "contact_city",
+        "contact_state",
+        "contact_zip",
         "jurisdiction_country",
         "jurisdiction_state",
         "acct_pass",
-        "acct_holder_name",
-        "encrypted_acct_holder_tax_a",
-        "acct_holder_tax_b",
-        "acct_holder_cust_id",        
-        "beneficiary_first_name",
-        "beneficiary_last_name",
-        "beneficiary_encrypted_tax_a",
-        "beneficiary_tax_b",
-        "beneficiary_relationship",
-        "beneficiary_portion",
-        "power_of_attorney_role",
-        "power_of_attorney_first_name",
-        "power_of_attorney_last_name",
-        "power_of_attorney_encrypted_tax_a",
-        "power_of_attorney_tax_b",
+        "acct_holder_id",
+        "cust_secondary_id",
+        "acct_bene_id",
+        "bene_first_name",
+        "bene_last_name",
+        "bene_encrypted_tax_a",
+        "bene_tax_b",
+        "bene_relationship",
+        "bene_portion",
+        "acct_poa_id",
+        "poa_role",
+        "poa_first_name",
+        "poa_last_name",
+        "poa_encrypted_tax_a",
+        "poa_tax_b"
     ],
 )
 
@@ -2813,7 +2751,7 @@ df_cust_emp = df_all_data[[
     "employer_name",
     "occupation"]].copy()
 
-df_cust_identification = df_all_data[[
+df_cust_id = df_all_data[[
     "cust_id",
     "state",
     "dl_num",
@@ -2844,7 +2782,7 @@ df_cust_tax = df_all_data[[
 dataframes_cust = [
     (df_cust_contact, "cust_contact.csv"),
     (df_cust_emp, "cust_emp.csv"),
-    (df_cust_identification, "cust_identification.csv"),
+    (df_cust_id, "cust_id.csv"),
     (df_cust_info, "cust_info.csv"),
     (df_cust_privacy, "cust_privacy.csv"),
     (df_cust_tax, "cust_tax.csv"),
@@ -2862,21 +2800,24 @@ df_acct_info = df_all_data[[
     "inital_contact_method",
     "acct_type",
     "registration_name",
-    "investment_objectives",
-    "source_of_funding",
-    "purpose_of_account",
-    "anticipated_activity",
+    "acct_objective",
+    "acct_funding",
+    "acct_purpose",
+    "acct_activity",
+    "cust_id",
+    "acct_nickname",
     "rep_id",
     "established_date",
     "acct_status"]].copy()
 
 df_acct_contact = df_all_data[[
     "acct_id",
-    "primary_contact_name",
-    "primary_contact_address",
-    "primary_contact_city",
-    "primary_contact_state",
-    "primary_contact_zip"]].copy()
+    "contact_name",
+    "contact_address",
+    "contact_address_2",
+    "contact_city",
+    "contact_state",
+    "contact_zip"]].copy()
 
 df_acct_jurisdiction = df_all_data[[
     "acct_id",
@@ -2888,30 +2829,28 @@ df_acct_pass = df_all_data[[
     "acct_pass"]].copy()
 
 df_acct_holders = df_all_data[[
+    "acct_holder_id",
     "acct_id",
-    "first_name",
-    "middle_name",
-    "last_name",
-    "encrypted_tax_a",
-    "tax_b",
     "cust_secondary_id"]].copy()
 
-df_acct_beneficiaries = df_all_data[[
+df_acct_bene = df_all_data[[
+    "acct_bene_id",
     "acct_id",
-    "beneficiary_first_name",
-    "beneficiary_last_name",
-    "beneficiary_encrypted_tax_a",
-    "beneficiary_tax_b",
-    "beneficiary_relationship",
-    "beneficiary_portion"]].copy()
+    "bene_first_name",
+    "bene_last_name",
+    "bene_encrypted_tax_a",
+    "bene_tax_b",
+    "bene_relationship",
+    "bene_portion"]].copy()
 
-df_acct_power_of_attorney = df_all_data[[
+df_acct_poa = df_all_data[[
+    "acct_poa_id",
     "acct_id",
-    "power_of_attorney_role",
-    "power_of_attorney_first_name",
-    "power_of_attorney_last_name",
-    "power_of_attorney_encrypted_tax_a",
-    "power_of_attorney_tax_b"]].copy()
+    "poa_role",
+    "poa_first_name",
+    "poa_last_name",
+    "poa_encrypted_tax_a",
+    "poa_tax_b"]].copy()
 
 dataframes_acct = [
     (df_acct_info, "acct_info.csv"),
@@ -2919,8 +2858,8 @@ dataframes_acct = [
     (df_acct_contact, "acct_contact.csv"),
     (df_acct_jurisdiction, "acct_jurisdiction.csv"),
     (df_acct_holders, "acct_holders.csv"),
-    (df_acct_beneficiaries, "acct_beneficiaries.csv"),
-    (df_acct_power_of_attorney, "acct_power_of_attorney.csv"),
+    (df_acct_bene, "acct_bene.csv"),
+    (df_acct_poa, "acct_poa.csv"),
 ]
 
 for df, filename in tqdm(dataframes_acct):
