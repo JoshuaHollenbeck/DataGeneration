@@ -7,17 +7,25 @@ import pandas as pd
 
 fake = Faker("en_US")
 
+# Customer Information
+
 def generate_suffix():
     return fake.suffix() if random.random() < 0.03 else None
 
 def generate_middle():
     return fake.first_name() if random.random() < 0.32 else None
 
-def generate_phone():
+def generate_phone_home():
     area_code = fake.random_number(digits=3, fix_len=True)
     central_office_code = fake.random_number(digits=3, fix_len=True)
     line_number = fake.random_number(digits=4, fix_len=True)
     return f"{area_code}-{central_office_code}-{line_number}"
+
+def generate_phone_business():
+    area_code = fake.random_number(digits=3, fix_len=True)
+    central_office_code = fake.random_number(digits=3, fix_len=True)
+    line_number = fake.random_number(digits=4, fix_len=True)
+    return f"{area_code}-{central_office_code}-{line_number}" if random.random() < 0.21 else None
 
 def generate_address():
     street_num = random.randint(1, 5999)
@@ -2416,41 +2424,18 @@ def generate_ssn_back():
     serial_num = fake.random_number(digits=4, fix_len=True)
     return serial_num
 
-def generate_bene_ssn_front():
-    area_num = fake.random_number(digits=3, fix_len=True)
-    group_num = fake.random_number(digits=2, fix_len=True)
-    return f"{area_num}-{group_num}"
-
-def generate_bene_ssn_back():
-    serial_num = fake.random_number(digits=4, fix_len=True)
-    return serial_num
-
-def generate_job(rand_num):
-    return fake.job() if rand_num == 1 else None
-
-def generate_poa_role(rand_num):
-    client_poa = random.randint(1,3)
-    return client_poa if rand_num == 1 else None
-
-def generate_poa_first_name(rand_num):
-    return fake.first_name() if rand_num == 1 else None
-
-def generate_poa_last_name(rand_num):
-    return fake.last_name() if rand_num == 1 else None
-
-def generate_poa_ssn_front(rand_num):
-    area_num = fake.random_number(digits=3, fix_len=True)
-    group_num = fake.random_number(digits=2, fix_len=True)
-    return f"{area_num}-{group_num}" if rand_num == 1 else None
-
-def generate_poa_ssn_back(rand_num):
-    serial_num = fake.random_number(digits=4, fix_len=True)
-    return serial_num if rand_num == 1 else None
-
 def generate_exp_date():
     exp_month = random.randint(1,12)
     exp_year = random.randint(2023,2035)
     return f"{exp_month}/{exp_year}"
+
+def generate_id_type():
+    return random.randint(1,5)
+
+def generate_is_organization():
+    return '0'
+
+# Customer Account Information
 
 def generate_contact_method():
     return 1 if random.random() < 0.34 else None 
@@ -2499,18 +2484,51 @@ def generate_jurisdiction_country():
 
 def generate_acct_pass():
     word = fake.word()
+    num = random.randint(1,9999)
+    return f"{word}{num}"
 
+# Beneficiary information
 def generate_bene_relationship():
-    client_bene_relationship = random.int(1,10)
+    client_bene_relationship = random.randint(1,10)
     return client_bene_relationship
 
+def generate_bene_ssn_front():
+    area_num = fake.random_number(digits=3, fix_len=True)
+    group_num = fake.random_number(digits=2, fix_len=True)
+    return f"{area_num}-{group_num}"
+
+def generate_bene_ssn_back():
+    serial_num = fake.random_number(digits=4, fix_len=True)
+    return serial_num
+
 def generate_bene_portion():
-    return "100%"
+    return "100"
+
+# POA information
+def generate_poa_role():
+    client_poa = random.randint(1,3)
+    return client_poa
+
+def generate_poa_first_name():
+    return fake.first_name()
+
+def generate_poa_last_name():
+    return fake.last_name()
+
+def generate_poa_ssn_front():
+    area_num = fake.random_number(digits=3, fix_len=True)
+    group_num = fake.random_number(digits=2, fix_len=True)
+    return f"{area_num}-{group_num}"
+
+def generate_poa_ssn_back():
+    serial_num = fake.random_number(digits=4, fix_len=True)
+    return serial_num
 
 all_data = []
 
-records = 5
+records = 1
 for i in tqdm(range(records)):
+    # Customer Informatoin
     first_name = fake.first_name()
     last_name = fake.last_name()
     job = fake.job().lower()
@@ -2558,11 +2576,6 @@ for i in tqdm(range(records)):
     else:
         generated_num = 0
 
-    if random.random() < 0.34:
-        generated_poa_num = 1
-    else:
-        generated_poa_num = 0
-
     employer = [
         fake.first_name().title() + " " + fake.company_suffix(),
         fake.last_name().title() + " " + fake.company_suffix(),
@@ -2584,9 +2597,13 @@ for i in tqdm(range(records)):
 
     state = fake.state_abbr(include_territories = True, include_freely_associated_states = False)
     
-    generate_acct_type = random.ranint(1,25)
+    city = fake.city()
+
+    generate_acct_type = random.randint(1,25)
 
     registration_name = f"{account_holder_name} {generate_acct_type}"
+
+    account_nickname =  f"{first_name} {generate_acct_type}"  
 
     all_data.append(
         [
@@ -2598,11 +2615,14 @@ for i in tqdm(range(records)):
             generate_suffix(),
             birth_date,
             client_since,
+            generate_is_organization(),
+            generate_id_type(),
             email,
-            generate_phone(),
+            generate_phone_home(),
+            generate_phone_business(),
             generate_address(),
             generate_address_2(),
-            fake.city(),
+            city,
             state,
             zip_code,
             generate_employment(generated_num),
@@ -2619,7 +2639,7 @@ for i in tqdm(range(records)):
             generate_do_not_call(),
             generate_share_affiliates(),
 
-            # Account
+            # Account      
             generate_acct_num(),
             generate_inital_contact_method(),
             generate_acct_type,
@@ -2628,33 +2648,29 @@ for i in tqdm(range(records)):
             generate_source_of_funding(),
             generate_purpose_of_account(),
             generate_anticipated_activity(),
+            account_nickname,
             generate_rep_id(),
-            client_since,
             generate_acct_status(),
             account_holder_name,
             generate_address(),
             generate_address_2(),
-            fake.city(),
+            city,
             state,
             zip_code,
             generate_jurisdiction_country(),
             state,
             generate_acct_pass(),
-            account_holder_name,
-            generate_ssn_front(),
-            generate_ssn_back(),
-            str(cust_secondary_id).zfill(10),
             fake.first_name(),
             last_name,
             generate_bene_ssn_front(),
             generate_bene_ssn_back(),
             generate_bene_relationship(),
             generate_bene_portion(),
-            generate_poa_role(generated_poa_num),
-            generate_poa_first_name(generated_poa_num),
-            generate_poa_last_name(generated_poa_num),
-            generate_poa_ssn_front(generated_poa_num),
-            generate_poa_ssn_back(generated_poa_num),
+            generate_poa_role(),
+            generate_poa_first_name(),
+            generate_poa_last_name(),
+            generate_poa_ssn_front(),
+            generate_poa_ssn_back(),
         ]
     )
 
@@ -2669,8 +2685,11 @@ df_all_data = pd.DataFrame(
         "suffix",
         "date_of_birth",
         "client_since",
+        "is_organization",
+        "id_type",
         "email",
-        "phone",
+        "phone_home",
+        "phone_business",
         "address",
         "address_2",
         "city",
@@ -2689,9 +2708,8 @@ df_all_data = pd.DataFrame(
         "voice_auth",
         "do_not_call",
         "share_affiliates",
-        
-        # Account
-        "acct_id",
+
+        #Account
         "acct_num",
         "inital_contact_method",
         "acct_type",
@@ -2700,10 +2718,8 @@ df_all_data = pd.DataFrame(
         "acct_funding",
         "acct_purpose",
         "acct_activity",
-        "cust_id",
         "acct_nickname",
         "rep_id",
-        "established_date",
         "acct_status",
         "contact_name",
         "contact_address",
@@ -2714,16 +2730,12 @@ df_all_data = pd.DataFrame(
         "jurisdiction_country",
         "jurisdiction_state",
         "acct_pass",
-        "acct_holder_id",
-        "cust_secondary_id",
-        "acct_bene_id",
         "bene_first_name",
         "bene_last_name",
         "bene_encrypted_tax_a",
         "bene_tax_b",
         "bene_relationship",
         "bene_portion",
-        "acct_poa_id",
         "poa_role",
         "poa_first_name",
         "poa_last_name",
@@ -2738,7 +2750,8 @@ df_all_data["cust_id"] = range(1, len(df_all_data) + 1)
 df_cust_contact = df_all_data[[
     "cust_id",
     "email",
-    "phone",
+    "phone_home",
+    "phone_business",
     "address",
     "address_2",
     "city",
@@ -2753,6 +2766,7 @@ df_cust_emp = df_all_data[[
 
 df_cust_id = df_all_data[[
     "cust_id",
+    "id_type",
     "state",
     "dl_num",
     "dl_exp",
@@ -2766,7 +2780,8 @@ df_cust_info = df_all_data[[
     "last_name",
     "suffix",
     "date_of_birth",
-    "client_since"]].copy()
+    "client_since",
+    "is_organization"]].copy()
 
 df_cust_privacy = df_all_data[[
     "cust_id",
@@ -2791,8 +2806,32 @@ dataframes_cust = [
 for df, filename in tqdm(dataframes_cust):
     df.to_csv(filename, index=False)
 
-df_all_data = df_all_data.sort_values("established_date")
+df_all_data = df_all_data.sort_values("client_since")
 df_all_data["acct_id"] = range(1, len(df_all_data) + 1)
+
+df_acct_bene = df_all_data[[
+    "cust_id",
+    "acct_id",
+    "bene_first_name",
+    "bene_last_name",
+    "bene_encrypted_tax_a",
+    "bene_tax_b",
+    "bene_relationship",
+    "bene_portion"]].copy()
+
+df_acct_contact = df_all_data[[
+    "acct_id",
+    "contact_name",
+    "contact_address",
+    "contact_address_2",
+    "contact_city",
+    "contact_state",
+    "contact_zip"]].copy()
+
+df_acct_holders = df_all_data[[
+    "cust_id",
+    "acct_id",
+    "cust_secondary_id"]].copy()
 
 df_acct_info = df_all_data[[
     "acct_id",
@@ -2807,17 +2846,8 @@ df_acct_info = df_all_data[[
     "cust_id",
     "acct_nickname",
     "rep_id",
-    "established_date",
+    "client_since",
     "acct_status"]].copy()
-
-df_acct_contact = df_all_data[[
-    "acct_id",
-    "contact_name",
-    "contact_address",
-    "contact_address_2",
-    "contact_city",
-    "contact_state",
-    "contact_zip"]].copy()
 
 df_acct_jurisdiction = df_all_data[[
     "acct_id",
@@ -2828,23 +2858,8 @@ df_acct_pass = df_all_data[[
     "acct_id",
     "acct_pass"]].copy()
 
-df_acct_holders = df_all_data[[
-    "acct_holder_id",
-    "acct_id",
-    "cust_secondary_id"]].copy()
-
-df_acct_bene = df_all_data[[
-    "acct_bene_id",
-    "acct_id",
-    "bene_first_name",
-    "bene_last_name",
-    "bene_encrypted_tax_a",
-    "bene_tax_b",
-    "bene_relationship",
-    "bene_portion"]].copy()
-
 df_acct_poa = df_all_data[[
-    "acct_poa_id",
+    "cust_id",
     "acct_id",
     "poa_role",
     "poa_first_name",
