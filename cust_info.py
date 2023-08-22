@@ -2526,7 +2526,7 @@ def generate_poa_ssn_back():
 
 all_data = []
 
-records = 1
+records = 5
 for i in tqdm(range(records)):
     # Customer Informatoin
     first_name = fake.first_name()
@@ -2604,6 +2604,8 @@ for i in tqdm(range(records)):
     registration_name = f"{account_holder_name} {generate_acct_type}"
 
     account_nickname =  f"{first_name} {generate_acct_type}"  
+    
+    acct_bal = random.randint(25000,15000000)
 
     all_data.append(
         [
@@ -2671,6 +2673,7 @@ for i in tqdm(range(records)):
             generate_poa_last_name(),
             generate_poa_ssn_front(),
             generate_poa_ssn_back(),
+            acct_bal,
         ]
     )
 
@@ -2740,7 +2743,8 @@ df_all_data = pd.DataFrame(
         "poa_first_name",
         "poa_last_name",
         "poa_encrypted_tax_a",
-        "poa_tax_b"
+        "poa_tax_b",
+        "acct_bal"
     ],
 )
 
@@ -2809,6 +2813,10 @@ for df, filename in tqdm(dataframes_cust):
 df_all_data = df_all_data.sort_values("client_since")
 df_all_data["acct_id"] = range(1, len(df_all_data) + 1)
 
+df_acct_bal = df_all_data[[
+    "acct_id",
+    "acct_bal"]].copy()
+
 df_acct_bene = df_all_data[[
     "cust_id",
     "acct_id",
@@ -2868,6 +2876,7 @@ df_acct_poa = df_all_data[[
     "poa_tax_b"]].copy()
 
 dataframes_acct = [
+    (df_acct_bal, "acct_bal.csv"),
     (df_acct_info, "acct_info.csv"),
     (df_acct_pass, "acct_pass.csv"),
     (df_acct_contact, "acct_contact.csv"),
