@@ -2440,15 +2440,6 @@ def generate_is_organization():
 def generate_contact_method():
     return 1 if random.random() < 0.34 else None 
 
-def generate_voice_auth():
-    return random.getrandbits(1)
-
-def generate_do_not_call():
-    return random.getrandbits(1)
-
-def generate_share_affiliates():
-    return random.getrandbits(1)
-
 def generate_acct_num():
     return random.randint(10000000,99999999)
 
@@ -2524,11 +2515,23 @@ def generate_poa_ssn_back():
     serial_num = fake.random_number(digits=4, fix_len=True)
     return serial_num
 
+def generate_atm_limit():
+    atm  =["300", "400", "500", "600", "700", "800", "900", "1000", "1500", "2000", "3000"]
+    return random.choice(atm)
+
+def generate_ach_limit(): 
+    ach = ["1000", "2000", "3000", "4000", "5000", "10000", "25000", "50000", "100000"]
+    return random.choice(ach)
+
+def generate_wire_limit(): 
+    wire = ["100000", "500000", "1000000", "5000000", "10000000"]
+    return random.choice(wire)
+
 all_data = []
 
 records = 5
 for i in tqdm(range(records)):
-    # Customer Informatoin
+    # Customer Information
     first_name = fake.first_name()
     last_name = fake.last_name()
     job = fake.job().lower()
@@ -2607,6 +2610,20 @@ for i in tqdm(range(records)):
     
     acct_bal = random.randint(25000,15000000)
 
+    online_banking = random.getrandbits(1)
+    
+    mobile_banking = random.getrandbits(1)
+
+    two_factor = random.getrandbits(1)
+    
+    biometrics = random.getrandbits(1)
+
+    voice_auth = random.getrandbits(1)
+
+    do_not_call = random.getrandbits(1)
+
+    share_affiliates = random.getrandbits(1)
+
     all_data.append(
         [
             # Customer
@@ -2637,9 +2654,9 @@ for i in tqdm(range(records)):
             generate_exp_date(),
             fake.last_name(),
             generate_contact_method(),
-            generate_voice_auth(),
-            generate_do_not_call(),
-            generate_share_affiliates(),
+            voice_auth,
+            do_not_call,
+            share_affiliates,
 
             # Account      
             generate_acct_num(),
@@ -2674,6 +2691,13 @@ for i in tqdm(range(records)):
             generate_poa_ssn_front(),
             generate_poa_ssn_back(),
             acct_bal,
+            online_banking,
+            mobile_banking,
+            two_factor,
+            biometrics,
+            generate_atm_limit(),
+            generate_ach_limit(),
+            generate_wire_limit()
         ]
     )
 
@@ -2744,7 +2768,14 @@ df_all_data = pd.DataFrame(
         "poa_last_name",
         "poa_encrypted_tax_a",
         "poa_tax_b",
-        "acct_bal"
+        "acct_bal",
+        "online",
+        "mobile",
+        "two_factor",
+        "biometrics",
+        "atm_limit",
+        "ach_limit",
+        "wire_limit"
     ],
 )
 
@@ -2860,7 +2891,14 @@ df_acct_info = df_all_data[[
 df_acct_jurisdiction = df_all_data[[
     "acct_id",
     "jurisdiction_country",
-    "jurisdiction_state",]].copy()
+    "jurisdiction_state"]].copy()
+
+df_acct_mobile = df_all_data[[
+    "acct_id",
+    "online",
+    "mobile",
+    "two_factor",
+    "biometrics"]].copy()
 
 df_acct_pass = df_all_data[[
     "acct_id",
@@ -2875,15 +2913,23 @@ df_acct_poa = df_all_data[[
     "poa_encrypted_tax_a",
     "poa_tax_b"]].copy()
 
+df_acct_limit = df_all_data[[
+    "acct_id",
+    "atm_limit",
+    "ach_limit",
+    "wire_limit"]].copy()
+
 dataframes_acct = [
     (df_acct_bal, "acct_bal.csv"),
+    (df_acct_contact, "acct_contact.csv"),
     (df_acct_info, "acct_info.csv"),
     (df_acct_pass, "acct_pass.csv"),
-    (df_acct_contact, "acct_contact.csv"),
     (df_acct_jurisdiction, "acct_jurisdiction.csv"),
+    (df_acct_mobile, "acct_mobile.csv"),
     (df_acct_holders, "acct_holders.csv"),
     (df_acct_bene, "acct_bene.csv"),
     (df_acct_poa, "acct_poa.csv"),
+    (df_acct_limit, "acct_limit.csv")
 ]
 
 for df, filename in tqdm(dataframes_acct):
