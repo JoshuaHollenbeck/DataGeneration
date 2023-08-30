@@ -288,7 +288,7 @@ def get_acct_type(generate_acct_type):
         4: ("Roth IRA", "IRA-RH"),
         5: ("Rollover IRA", "IRA-RO"),
         6: ("Roth Conversion IRA", "IRA-RV"),
-        7: ("Simplified Employee Pension (SEP) IRA", "IRA-SEP"),
+        7: ("Simplified Employee Pension IRA", "IRA-SEP"),
         8: ("Bank One Coporate", "B1-CORP"),
         9: ("Bank One Community Property", "B1-CP"),
         10: ("Bank One Company Retirement Account", "B1-CRA"),
@@ -365,8 +365,10 @@ customers_data = []
 
 accounts_holder_data = []
 
-records = 50
-for i in tqdm(range(records)):
+cust_records = 10
+emp_records = 10
+
+for i in tqdm(range(cust_records)):
     #Customer information
     first_name = fake.first_name()
     joint_first_name = fake.first_name()
@@ -460,35 +462,6 @@ for i in tqdm(range(records)):
         poa_random = 1
     else:
         poa_random = 0
-
-    #Employee information
-    emp_first_name = fake.first_name()
-    emp_last_name = fake.last_name()
-
-    start_date = datetime(1970, 1, 1)
-    end_date = datetime(2023, 7, 12)
-    hire_date_math = start_date + timedelta(
-        days=random.randint(0, (end_date - start_date).days))
-    years_to_subtract = random.randint(1, 80)
-    birth_date_math = hire_date_math - timedelta(days=years_to_subtract * 365)
-
-    if random.random() < 0.45:
-        termination_date_math = start_date + timedelta(
-            days=random.randint(0, (end_date - start_date).days))
-    else:
-        termination_date_math = None
-
-    termination_reason_result = termination_reason(termination_date_math)
-    rehireable_result = rehireable(termination_reason_result)
-
-    hire_date = hire_date_math.strftime("%Y-%m-%d")
-    birth_date = birth_date_math.strftime("%Y-%m-%d")
-
-    emp_city, emp_state, emp_zip, position, salary = generate_zip_position_salary()
-
-    emp_id = i + 1
-
-    emp_secondary_id = i + 1
 
     acct_num = generate_acct_num()
 
@@ -607,6 +580,52 @@ for i in tqdm(range(records)):
         customers_data.append(joint_data)
         joints_data.append(joint_data)
 
+    #Generate beneficiary number between 1 and 4
+    num_beneficiaries = random.randint(1, 4)
+    for j in range(num_beneficiaries):
+        bene_data = {
+            "acct_num": acct_num,
+            "bene_cust_id": generate_bene_cust_id(),
+            "bene_first_name": fake.first_name(),
+            "bene_last_name": last_name,
+            "bene_encrypted_tax_a": generate_bene_ssn_front(),
+            "bene_tax_b": generate_bene_ssn_back(),
+            "bene_relationship": generate_bene_relationship(),
+            "bene_portion": generate_bene_portion(num_beneficiaries),
+            "client_since": client_since,
+        }
+        beneficiaries_data.append(bene_data)
+
+for i in tqdm(range(emp_records)):
+    #Employee information
+    emp_first_name = fake.first_name()
+    emp_last_name = fake.last_name()
+
+    start_date = datetime(1970, 1, 1)
+    end_date = datetime(2023, 7, 12)
+    hire_date_math = start_date + timedelta(
+        days=random.randint(0, (end_date - start_date).days))
+    years_to_subtract = random.randint(1, 80)
+    birth_date_math = hire_date_math - timedelta(days=years_to_subtract * 365)
+
+    if random.random() < 0.45:
+        termination_date_math = start_date + timedelta(
+            days=random.randint(0, (end_date - start_date).days))
+    else:
+        termination_date_math = None
+
+    termination_reason_result = termination_reason(termination_date_math)
+    rehireable_result = rehireable(termination_reason_result)
+
+    hire_date = hire_date_math.strftime("%Y-%m-%d")
+    birth_date = birth_date_math.strftime("%Y-%m-%d")
+
+    emp_city, emp_state, emp_zip, position, salary = generate_zip_position_salary()
+
+    emp_id = i + 1
+
+    emp_secondary_id = i + 1
+
     #Generate employee data
     employee_data = {
         "emp_secondary_id": emp_secondary_id,
@@ -638,22 +657,6 @@ for i in tqdm(range(records)):
     }
     employees_data.append(employee_data)
 
-    #Generate beneficiary number between 1 and 4
-    num_beneficiaries = random.randint(1, 4)
-    for j in range(num_beneficiaries):
-        bene_data = {
-            "acct_num": acct_num,
-            "bene_cust_id": generate_bene_cust_id(),
-            "bene_first_name": fake.first_name(),
-            "bene_last_name": last_name,
-            "bene_encrypted_tax_a": generate_bene_ssn_front(),
-            "bene_tax_b": generate_bene_ssn_back(),
-            "bene_relationship": generate_bene_relationship(),
-            "bene_portion": generate_bene_portion(num_beneficiaries),
-            "client_since": client_since,
-        }
-        beneficiaries_data.append(bene_data)
-
 df_account_info = pd.DataFrame(accounts_data)
 df_customer_info = pd.DataFrame(customers_data)
 df_beneficiary_info = pd.DataFrame(beneficiaries_data)
@@ -674,15 +677,15 @@ df_cust_contact = df_customer_info[[
     "city",
     "state",
     "zip_code",
-]].astype(str).replace("\.0", "", regex=True)
+]].copy()
 
 df_cust_emp = df_customer_info[[
     "cust_id", "employment_status", "employer_name", "occupation"
-]].astype(str).replace("\.0", "", regex=True)
+]].copy()
 
 df_cust_id = df_customer_info[[
     "cust_id", "id_type", "state", "dl_num", "dl_exp", "mothers_maiden"
-]].astype(str).replace("\.0", "", regex=True)
+]].copy()
 
 df_cust_info = df_customer_info[[
     "cust_id",
@@ -694,14 +697,13 @@ df_cust_info = df_customer_info[[
     "date_of_birth",
     "client_since",
     "is_organization",
-]].astype(str).replace("\.0", "", regex=True)
+]].copy()
 
 df_cust_privacy = df_customer_info[[
     "cust_id", "voice_auth", "do_not_call", "share_affiliates"
-]].astype(str).replace("\.0", "", regex=True)
+]].copy()
 
-df_cust_tax = df_customer_info[["cust_id", "encrypted_tax_a", "tax_b"]].astype(
-    str).replace("\.0", "", regex=True)
+df_cust_tax = df_customer_info[["cust_id", "encrypted_tax_a", "tax_b"]].copy()
 
 dataframes_cust = [
     (df_cust_contact, "cust_contact.csv"),
@@ -722,8 +724,7 @@ df_beneficiary_info = df_beneficiary_info.sort_values("client_since")
 df_account_info["acct_id"] = range(1, len(df_account_info) + 1)
 df_account_info["cust_id"] = range(1, len(df_account_info) + 1)
 
-df_acct_bal = df_account_info[["acct_id", "acct_bal"]].astype(
-    str).replace("\.0", "", regex=True)
+df_acct_bal = df_account_info[["acct_id", "acct_bal"]].copy()
 
 df_acct_bene = df_beneficiary_info[[
     "acct_num",
@@ -735,7 +736,7 @@ df_acct_bene = df_beneficiary_info[[
     "bene_relationship",
     "bene_portion",
     "client_since",
-]].astype(str).replace("\.0", "", regex=True)
+]].copy()
 
 acct_num_dict = {}
 
@@ -756,15 +757,15 @@ df_acct_contact = df_account_info[[
     "contact_city",
     "contact_state",
     "contact_zip",
-]].astype(str).replace("\.0", "", regex=True)
+]].copy()
 
-df_acct_contact = df_acct_contact.astype(str)
+df_acct_contact = df_acct_contact
 
 merged_df = pd.merge(df_account_info, df_joint_info[['acct_num', 'joint_cust_secondary_id']], on='acct_num', how='left')
 
 df_acct_holders = merged_df[[
     "acct_id", "acct_num", "cust_secondary_id", "joint_cust_secondary_id", "client_since"
-]].astype(str).replace("\.0", "", regex=True)
+]].copy()
 
 df_acct_holders.drop(["acct_num", "client_since"], axis=1, inplace=True)
 
@@ -783,18 +784,17 @@ df_acct_info = df_account_info[[
     "rep_id",
     "client_since",
     "acct_status",
-]].astype(str).replace("\.0", "", regex=True)
+]].copy()
 
 df_acct_jurisdiction = df_account_info[[
     "acct_id", "jurisdiction_country", "jurisdiction_state"
-]].astype(str).replace("\.0", "", regex=True)
+]].copy()
 
 df_acct_mobile = df_account_info[[
     "acct_id", "online", "mobile", "two_factor", "biometrics"
-]].astype(str).replace("\.0", "", regex=True)
+]].copy()
 
-df_acct_pass = df_account_info[["acct_id", "acct_pass"]].astype(
-    str).replace("\.0", "", regex=True)
+df_acct_pass = df_account_info[["acct_id", "acct_pass"]].copy()
 
 df_acct_poa = df_account_info[[
     "acct_id",
@@ -804,11 +804,11 @@ df_acct_poa = df_account_info[[
     "poa_last_name",
     "poa_encrypted_tax_a",
     "poa_tax_b",
-]].astype(str).replace("\.0", "", regex=True)
+]].copy()
 
 df_acct_limit = df_account_info[[
     "acct_id", "atm_limit", "ach_limit", "wire_limit"
-]].astype(str).replace("\.0", "", regex=True)
+]].copy()
 
 df_acct_poa.dropna(subset=["poa_cust_id"], inplace=True)
 
@@ -847,7 +847,7 @@ df_emp_contact = df_employee_info[[
     "emp_city",
     "emp_state",
     "emp_zip_code",
-]].astype(str).replace("\.0", "", regex=True)
+]].copy()
 
 df_emp_info = df_employee_info[[
     "emp_id",
@@ -860,10 +860,9 @@ df_emp_info = df_employee_info[[
     "rep_id",
     "hire_date",
     "termination_date",
-]].astype(str).replace("\.0", "", regex=True)
+]].copy()
 
-df_emp_tax = df_employee_info[["emp_id", "emp_encrypted_tax_a", "emp_tax_b"]].astype(
-    str).replace("\.0", "", regex=True)
+df_emp_tax = df_employee_info[["emp_id", "emp_encrypted_tax_a", "emp_tax_b"]].copy()
 
 dataframes = [
     (df_emp_contact, "emp_contact.csv"),
@@ -880,7 +879,7 @@ df_employee_info["salary_id"] = range(1, len(df_employee_info) + 1)
 
 df_emp_salary = df_employee_info[[
     "salary_id", "emp_id", "effective_date", "salary_amount"
-]].astype(str).replace("\.0", "", regex=True)
+]].copy()
 
 dataframes_salary = [
     (df_emp_salary, "emp_salary.csv"),
@@ -895,7 +894,7 @@ df_employee_info["emp_position_id"] = range(1, len(df_employee_info) + 1)
 
 df_emp_position = df_employee_info[[
     "emp_position_id", "emp_id", "position_location_id", "start_date", "end_date"
-]].astype(str).replace("\.0", "", regex=True)
+]].copy()
 
 dataframes_position = [
     (df_emp_position, "emp_position.csv"),
@@ -910,7 +909,7 @@ df_employee_info["termination_id"] = range(1, len(df_employee_info) + 1)
 
 df_emp_termination = df_employee_info[[
     "termination_id", "emp_id", "termination_date_2", "reason", "rehireable"
-]].astype(str).replace("\.0", "", regex=True)
+]].copy()
 
 df_emp_termination.dropna(subset=["termination_date_2"], inplace=True)
 
