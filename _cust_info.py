@@ -365,8 +365,6 @@ employees_data = []
 
 customers_data = []
 
-accounts_holder_data = []
-
 cust_records = 10
 emp_records = 10
 
@@ -470,6 +468,8 @@ for i in tqdm(range(cust_records)):
     else:
         acct_status = 0
 
+    num_of_accts = random.randint(1,5)
+
     #Generate customer data
     customer_data = {
         "cust_secondary_id": str(cust_secondary_id).zfill(10),
@@ -506,45 +506,47 @@ for i in tqdm(range(cust_records)):
     customers_data.append(customer_data)
 
     #Generate account data
-    account_data = {
-        "acct_num": acct_num,
-        "cust_secondary_id": str(cust_secondary_id).zfill(10),
-        "initial_contact_method": generate_initial_contact_method(),
-        "acct_type": generate_acct_type,
-        "registration_name": registration_name,
-        "acct_objective": generate_investment_objectives(),
-        "acct_funding": generate_source_of_funding(),
-        "acct_purpose": generate_purpose_of_account(),
-        "acct_activity": generate_anticipated_activity(),
-        "acct_nickname": account_nickname,
-        "rep_id": generate_rep_id(),
-        "acct_status": acct_status,
-        "contact_name": account_holder_name,
-        "contact_address": generated_address,
-        "contact_address_2": generated_address_2,
-        "contact_city": city,
-        "contact_state": state,
-        "contact_zip": str(zip_code).zfill(5),
-        "jurisdiction_country": generate_jurisdiction_country(),
-        "jurisdiction_state": state,
-        "acct_pass": generate_acct_pass(),
-        "poa_cust_id": generate_poa_cust_id(poa_random),
-        "poa_role": generate_poa_role(poa_random),
-        "poa_first_name": generate_poa_first_name(poa_random),
-        "poa_last_name": generate_poa_last_name(poa_random),
-        "poa_encrypted_tax_a": generate_poa_ssn_front(poa_random),
-        "poa_tax_b": generate_poa_ssn_back(poa_random),
-        "acct_bal": acct_bal(acct_status),
-        "online": online_banking,
-        "mobile": mobile_banking,
-        "two_factor": two_factor,
-        "biometrics": biometrics,
-        "atm_limit": generate_atm_limit(),
-        "ach_limit": generate_ach_limit(),
-        "wire_limit": generate_wire_limit(),
-        "client_since": client_since,
-    }
-    accounts_data.append(account_data)
+    
+    for x in range(num_of_accts):
+        account_data = {
+            "acct_num": acct_num,
+            "cust_secondary_id": str(cust_secondary_id).zfill(10),
+            "initial_contact_method": generate_initial_contact_method(),
+            "acct_type": generate_acct_type,
+            "registration_name": registration_name,
+            "acct_objective": generate_investment_objectives(),
+            "acct_funding": generate_source_of_funding(),
+            "acct_purpose": generate_purpose_of_account(),
+            "acct_activity": generate_anticipated_activity(),
+            "acct_nickname": account_nickname,
+            "rep_id": generate_rep_id(),
+            "acct_status": acct_status,
+            "contact_name": account_holder_name,
+            "contact_address": generated_address,
+            "contact_address_2": generated_address_2,
+            "contact_city": city,
+            "contact_state": state,
+            "contact_zip": str(zip_code).zfill(5),
+            "jurisdiction_country": generate_jurisdiction_country(),
+            "jurisdiction_state": state,
+            "acct_pass": generate_acct_pass(),
+            "poa_cust_id": generate_poa_cust_id(poa_random),
+            "poa_role": generate_poa_role(poa_random),
+            "poa_first_name": generate_poa_first_name(poa_random),
+            "poa_last_name": generate_poa_last_name(poa_random),
+            "poa_encrypted_tax_a": generate_poa_ssn_front(poa_random),
+            "poa_tax_b": generate_poa_ssn_back(poa_random),
+            "acct_bal": acct_bal(acct_status),
+            "online": online_banking,
+            "mobile": mobile_banking,
+            "two_factor": two_factor,
+            "biometrics": biometrics,
+            "atm_limit": generate_atm_limit(),
+            "ach_limit": generate_ach_limit(),
+            "wire_limit": generate_wire_limit(),
+            "client_since": client_since,
+        }
+        accounts_data.append(account_data)
 
     #Generate joint cutomer data
     if generate_acct_type in [9, 13, 16]:
