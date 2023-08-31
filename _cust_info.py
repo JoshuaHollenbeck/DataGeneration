@@ -155,10 +155,6 @@ def generate_rep_id():
     return rep_id
 
 
-def generate_acct_status():
-    return 1 if random.random() < 0.96 else None
-
-
 def generate_jurisdiction_country():
     return "United States"
 
@@ -168,6 +164,12 @@ def generate_acct_pass():
     num = random.randint(1, 9999)
     return f"{word}{num}"
 
+
+def acct_bal(acct_status):
+    if acct_status == 0:
+        return 0
+    else:
+        return random.randint(25000, 15000000)
 
 # Beneficiary information
 def generate_bene_cust_id():
@@ -442,8 +444,6 @@ for i in tqdm(range(cust_records)):
 
     account_nickname = f"{first_name} {acct_type_abbr}"
 
-    acct_bal = random.randint(25000, 15000000)
-
     online_banking = random.getrandbits(1)
 
     mobile_banking = random.getrandbits(1)
@@ -464,6 +464,11 @@ for i in tqdm(range(cust_records)):
         poa_random = 0
 
     acct_num = generate_acct_num()
+    
+    if random.random() < 0.96:
+        acct_status = 1
+    else:
+        acct_status = 0
 
     #Generate customer data
     customer_data = {
@@ -513,7 +518,7 @@ for i in tqdm(range(cust_records)):
         "acct_activity": generate_anticipated_activity(),
         "acct_nickname": account_nickname,
         "rep_id": generate_rep_id(),
-        "acct_status": generate_acct_status(),
+        "acct_status": acct_status,
         "contact_name": account_holder_name,
         "contact_address": generated_address,
         "contact_address_2": generated_address_2,
@@ -529,7 +534,7 @@ for i in tqdm(range(cust_records)):
         "poa_last_name": generate_poa_last_name(poa_random),
         "poa_encrypted_tax_a": generate_poa_ssn_front(poa_random),
         "poa_tax_b": generate_poa_ssn_back(poa_random),
-        "acct_bal": acct_bal,
+        "acct_bal": acct_bal(acct_status),
         "online": online_banking,
         "mobile": mobile_banking,
         "two_factor": two_factor,
@@ -683,6 +688,8 @@ df_cust_emp = df_customer_info[[
     "cust_id", "employment_status", "employer_name", "occupation"
 ]].copy()
 
+df_cust_emp['employment_status'] = df_cust_emp['employment_status'].astype(str).replace('\.0', "", regex=True)
+
 df_cust_id = df_customer_info[[
     "cust_id", "id_type", "state", "dl_num", "dl_exp", "mothers_maiden"
 ]].copy()
@@ -806,11 +813,14 @@ df_acct_poa = df_account_info[[
     "poa_tax_b",
 ]].copy()
 
+df_acct_poa.dropna(subset=["poa_cust_id"], inplace=True)
+
+df_acct_poa['poa_role'] = df_acct_poa['poa_role'].astype(str).replace('\.0', "", regex=True)
+df_acct_poa['poa_tax_b'] = df_acct_poa['poa_tax_b'].astype(str).replace('\.0', "", regex=True)
+
 df_acct_limit = df_account_info[[
     "acct_id", "atm_limit", "ach_limit", "wire_limit"
 ]].copy()
-
-df_acct_poa.dropna(subset=["poa_cust_id"], inplace=True)
 
 dataframes_acct = [
     (df_acct_bal, "acct_bal.csv"),
@@ -866,7 +876,7 @@ df_emp_tax = df_employee_info[["emp_id", "emp_encrypted_tax_a", "emp_tax_b"]].co
 
 dataframes = [
     (df_emp_contact, "emp_contact.csv"),
-    (df_employee_info, "emp_info.csv"),
+    (df_emp_info, "emp_info.csv"),
     (df_emp_tax, "emp_tax.csv"),
 ]
 
@@ -910,6 +920,10 @@ df_employee_info["termination_id"] = range(1, len(df_employee_info) + 1)
 df_emp_termination = df_employee_info[[
     "termination_id", "emp_id", "termination_date_2", "reason", "rehireable"
 ]].copy()
+
+df_emp_termination['reason'] = df_emp_termination['reason'].astype(str).replace('\.0', "", regex=True)
+df_emp_termination['rehireable'] = df_emp_termination['rehireable'].astype(str).replace('\.0', "", regex=True)
+
 
 df_emp_termination.dropna(subset=["termination_date_2"], inplace=True)
 
