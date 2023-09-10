@@ -1,3 +1,6 @@
+# TODO Work on data datatype lengths
+
+
 from tqdm import tqdm
 from faker import Faker
 from datetime import datetime, timedelta
@@ -516,6 +519,7 @@ for i in tqdm(range(cust_records), desc=format_desc("Processing Clients")):
         "city": city,
         "state": state,
         "zip_code": str(zip_code).zfill(5),
+        "country": generate_jurisdiction_country(),
         "employment_status": generate_employment(generated_num),
         "employer_name": generate_employer(generated_num),
         "occupation": stripped_job,
@@ -1016,7 +1020,8 @@ df_cust_contact = df_customer_info[[
     "address_2",
     "city",
     "state",
-    "zip_code"
+    "zip_code",
+    "country"
 ]].copy()
 
 df_cust_emp = df_customer_info[[
