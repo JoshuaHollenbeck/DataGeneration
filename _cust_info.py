@@ -5,6 +5,7 @@ from tqdm import tqdm
 from faker import Faker
 from datetime import datetime, timedelta
 from _city_info import *
+from _trade_info import *
 import random
 import math
 import string
@@ -660,6 +661,7 @@ for account in tqdm(accounts_data, desc=format_desc("Processing Transactions")):
     client_since = datetime.strptime(account["client_since"], "%Y-%m-%d")
     closed_date = datetime.strptime(
         account["closed_date"], "%Y-%m-%d") if account["closed_date"] else datetime.now()
+    trade_exchange, trade_stock = generate_trade()
     num_transactions = random.randint(500, 5000)
     final_acct_balances = {}
     ira_transaction_type_list = [3, 4]
@@ -693,6 +695,21 @@ for account in tqdm(accounts_data, desc=format_desc("Processing Transactions")):
                 "transaction_date": transaction_date_str,
             }
             temp_transactions.append(transaction_data)
+
+            trade_data = {
+                "acct_num": acct_num,
+                "transaction_date": transaction_date_str,
+                "trade_type" = 
+                "stock_exchange" = stock_exhange,
+                "stock_id" = stock_id,
+                "trade_quantity" = generate_trade_quantity(),
+                "trade_price" = generate_trade_price(),
+                "trade_amount" = 
+                "trade_status" = 
+                "trade_fees" = 
+                "currency" = 
+                "rep_id" = rep_id
+y            }
 
         #Now, process these transactions
         #First loop for preprocessing transactions based on running_balance
