@@ -121,10 +121,6 @@ def generate_acct_num(acct_type_id):
 def generate_contact_method():
     return 1 if random.random() < 0.34 else None
 
-def generate_initial_contact_methods():
-    initial_contact = ["1", "2", "3", "4"]
-    return random.choice(initial_contact)
-
 def generate_investment_objectives():
     client_investment_objective = random.randint(1, 5)
     return client_investment_objective
@@ -140,12 +136,6 @@ def generate_purpose_of_account():
 def generate_anticipated_activity():
     client_anticipated_activity = random.randint(1, 4)
     return client_anticipated_activity
-
-def generate_rep_id():
-    n = 5
-    rep_id = "".join(
-        random.choices(string.ascii_uppercase + string.digits, k=n))
-    return rep_id
 
 def generate_jurisdiction_country():
     return "United States"
@@ -171,6 +161,19 @@ def haversine_distance(lat1, lon1, lat2, lon2):
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
     distance = R * c
     return distance
+
+def generate_rep_id(rep_status):
+    n = 5
+    rep_id = "".join(random.choices(string.ascii_uppercase + string.digits, k=n))
+    
+    if rep_status == 'trade':
+        return rep_id if random.random() < 0.03 else None
+    if rep_status == '4':
+        return rep_id
+    if rep_status == 'employee':
+        return rep_id
+    else:
+        None
 
 #Beneficiary information
 
@@ -320,13 +323,7 @@ def generate_ssn_front():
 
 def generate_ssn_back():
     serial_num = fake.random_number(digits=4, fix_len=True)
-    return serial_num
-
-def generate_rep_id():
-    n = 5
-    rep_id = "".join(
-        random.choices(string.ascii_uppercase + string.digits, k=n))
-    return rep_id
+    return serial_num    
 
 def termination_reason(termination_date_math):
     if termination_date_math is None:
@@ -555,10 +552,12 @@ for i in tqdm(range(cust_records), desc=format_desc("Processing Clients")):
 
         account_nickname = f"{first_name} {acct_type_abbr}"
 
+        initial_contact = random.choice(["1", "2", "3", "4"])
+
         account_data = {
             "acct_num": acct_num,
             "cust_secondary_id": str(cust_secondary_id).zfill(10),
-            "initial_contact_method": generate_initial_contact_methods(),
+            "initial_contact_method": initial_contact,
             "acct_type": generate_acct_type,
             "registration_name": registration_name,
             "acct_objective": generate_investment_objectives(),
@@ -566,7 +565,7 @@ for i in tqdm(range(cust_records), desc=format_desc("Processing Clients")):
             "acct_purpose": generate_purpose_of_account(),
             "acct_activity": generate_anticipated_activity(),
             "acct_nickname": account_nickname,
-            "rep_id": generate_rep_id(),
+            "rep_id": generate_rep_id(initial_contact),
             "acct_status": acct_status,
             "closed_date": closed_date,
             "contact_name": account_holder_name,
@@ -691,10 +690,10 @@ for account in tqdm(accounts_data, desc=format_desc("Processing Transactions")):
             transaction_info = get_transaction_types(random_transaction_type)
             transaction_date_str = transaction_date.strftime("%Y-%m-%d")
             transaction_amt = round(random.uniform(50.00, 1000.00), 2)
+            stock_exchange, stock_id, trade_price = generate_trade()
+            trade_quantity = transaction_amt / trade_price
 
             if transaction_info[0] == 3: # Buy
-                stock_exchange, stock_id = generate_trade()
-
                 transaction_data = {
                     "acct_num": acct_num,
                     "transaction_type": transaction_info[0],
@@ -711,11 +710,11 @@ for account in tqdm(accounts_data, desc=format_desc("Processing Transactions")):
                     "stock_id": stock_id,
                     "trade_quantity": trade_quantity,
                     "trade_price": trade_price,
-                    "trade_amount": trade_amt,
+                    "trade_amount": transaction_amt,
                     "trade_status": trade_status,
                     "trade_fees": trade_fees,
                     "currency": currency,
-                    "rep_id": rep_id
+                    "rep_id": generate_rep_id('trade')
                 }
                 trades_data.append(trade_data)
 
@@ -737,11 +736,11 @@ for account in tqdm(accounts_data, desc=format_desc("Processing Transactions")):
                     "stock_id": stock_id,
                     "trade_quantity": trade_quantity,
                     "trade_price": trade_price,
-                    "trade_amount": trade_amt,
+                    "trade_amount": transaction_amt,
                     "trade_status": trade_status,
                     "trade_fees": trade_fees,
                     "currency": currency,
-                    "rep_id": rep_id
+                    "rep_id": generate_rep_id('trade')
                 }
                 trades_data.append(trade_data)
 
@@ -804,24 +803,76 @@ for account in tqdm(accounts_data, desc=format_desc("Processing Transactions")):
         temp_transactions = []
 
         for transaction_date in generated_dates:
-            brokerage_transaction_type = random.choice(
-                brokerage_transaction_type_list)
-            transaction_info = get_transaction_types(
-                brokerage_transaction_type)
+            trade_status = "5"
+            trade_fees = "00.00"
+            currency = "USD"
+            random_transaction_type = random.choice(ira_transaction_type_list)
+            transaction_info = get_transaction_types(random_transaction_type)
             transaction_date_str = transaction_date.strftime("%Y-%m-%d")
+            transaction_amt = round(random.uniform(50.00, 1000.00), 2)
+            trade_quantity = transaction_amt / trade_price
 
-            if transaction_info[0] == 9:
-                transaction_amt = round(acct_bal_value * 0.0001, 2)
+            if transaction_info[0] == 3: # Buy
+                stock_exchange, stock_id = generate_trade()
+
+                transaction_data = {
+                    "acct_num": acct_num,
+                    "transaction_type": transaction_info[0],
+                    "transaction_amt": transaction_amt,
+                    "transaction_date": transaction_date_str,
+                }
+                temp_transactions.append(transaction_data)
+                
+                trade_data = {
+                    "acct_num": acct_num,
+                    "transaction_date": transaction_date_str,
+                    "trade_type": transaction_info[0],
+                    "stock_exchange": stock_exchange,
+                    "stock_id": stock_id,
+                    "trade_quantity": trade_quantity,
+                    "trade_price": trade_price,
+                    "trade_amount": transaction_amt,
+                    "trade_status": trade_status,
+                    "trade_fees": trade_fees,
+                    "currency": currency,
+                    "rep_id": generate_rep_id('trade')
+                }
+                trades_data.append(trade_data)
+
+            elif transaction_info[0] == 4: # Sell
+                
+                transaction_data = {
+                    "acct_num": acct_num,
+                    "transaction_type": transaction_info[0],
+                    "transaction_amt": transaction_amt,
+                    "transaction_date": transaction_date_str,
+                }
+                temp_transactions.append(transaction_data)
+
+                trade_data = {
+                    "acct_num": acct_num,
+                    "transaction_date": transaction_date_str,
+                    "trade_type": transaction_info[0],
+                    "stock_exchange": stock_exchange,
+                    "stock_id": stock_id,
+                    "trade_quantity": trade_quantity,
+                    "trade_price": trade_price,
+                    "trade_amount": trade_amt,
+                    "trade_status": trade_status,
+                    "trade_fees": trade_fees,
+                    "currency": currency,
+                    "rep_id": generate_rep_id('trade')
+                }
+                trades_data.append(trade_data)
+
             else:
-                transaction_amt = round(random.uniform(50.00, 1000.00), 2)
-
-            transaction_data = {
-                "acct_num": acct_num,
-                "transaction_type": transaction_info[0],
-                "transaction_amt": transaction_amt,
-                "transaction_date": transaction_date_str,
-            }
-            temp_transactions.append(transaction_data)
+                transaction_data = {
+                    "acct_num": acct_num,
+                    "transaction_type": transaction_info[0],
+                    "transaction_amt": transaction_amt,
+                    "transaction_date": transaction_date_str,
+                }
+                temp_transactions.append(transaction_data)
 
         #Now, process these transactions
         #First loop for preprocessing transactions based on running_balance
@@ -1031,7 +1082,7 @@ for i in tqdm(range(emp_records), desc=format_desc("Processing Employees")):
         "emp_last_name": emp_last_name,
         "emp_suffix": generate_emp_suffix(),
         "emp_date_of_birth": birth_date,
-        "rep_id": generate_rep_id(),
+        "rep_id": generate_rep_id('employee'),
         "hire_date": hire_date,
         "termination_date": termination_date_math,
         "emp_email": generate_email(),
@@ -1179,11 +1230,15 @@ df_beneficiary_info = df_beneficiary_info.sort_values("client_since")
 
 df_transaction_info = df_transaction_info.sort_values("transaction_date")
 
+df_trade_info = df_trade_info.sort_values("transaction_date")
+
 df_account_info["acct_id"] = range(1, len(df_account_info) + 1)
 
 df_account_info["cust_id"] = range(1, len(df_account_info) + 1)
 
 df_transaction_info["transaction_id"] = range(1, len(df_transaction_info) + 1)
+
+df_trade_info["trade_id"] = range(1, len(df_trade_info) + 1)
 
 for acct_num, final_bal in final_acct_balances.items():
     df_account_info.loc[df_account_info['acct_num']
@@ -1315,7 +1370,19 @@ df_acct_branch = df_account_info[[
 ]].copy()
 
 df_acct_trade = df_trade_info[[
-
+    "trade_id",
+    "acct_num",
+    "transaction_date",
+    "trade_type",
+    "stock_exchange",
+    "stock_id",
+    "trade_quantity",
+    "trade_price",
+    "trade_amount",
+    "trade_status",
+    "trade_fees",
+    "currency",
+    "rep_id"
 ]].copy()
 
 transaction_acct_num_dict = {}
@@ -1323,12 +1390,21 @@ transaction_acct_num_dict = {}
 for index, row in df_acct_transaction.iterrows():
     acct_num = row['acct_num']
     if acct_num not in transaction_acct_num_dict:
-        transaction_acct_num_dict[acct_num] = len(
-            transaction_acct_num_dict) + 1
-    df_acct_transaction.at[index,
-                           'acct_num'] = transaction_acct_num_dict[acct_num]
+        transaction_acct_num_dict[acct_num] = len(transaction_acct_num_dict) + 1
+    df_acct_transaction.at[index, 'acct_num'] = transaction_acct_num_dict[acct_num]
 
 df_acct_transaction = df_acct_transaction.rename(
+    columns={'acct_num': 'acct_id'})
+
+trade_acct_num_dict = {}
+
+for index, row in df_acct_trade.iterrows():
+    acct_num = row['acct_num']
+    if acct_num not in trade_acct_num_dict:
+        trade_acct_num_dict[acct_num] = len(trade_acct_num_dict) + 1
+    df_acct_trade.at[index, 'acct_num'] = trade_acct_num_dict[acct_num]
+
+df_acct_trade = df_acct_trade.rename(
     columns={'acct_num': 'acct_id'})
 
 dataframes_acct_bal = [
@@ -1419,7 +1495,7 @@ for df, filename in tqdm(dataframes_acct_transaction, desc=format_desc("acct_tra
 for df, filename in tqdm(dataframes_acct_branch, desc=format_desc("acct_branch.csv")):
     df.to_csv(filename, index=False)
 
-for df, filename in tdqm(dataframes_acct_trade, desc=format_des("acct_trade.cvs")):
+for df, filename in tqdm(dataframes_acct_trade, desc=format_desc("acct_trade.csv")):
     df.to_csv(filename, index=False)
 
 #Employee information
