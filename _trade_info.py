@@ -10530,6 +10530,6 @@ def generate_trade():
     lower_bound = trade_tickers[1][2]
     upper_bound = trade_tickers[2][3]
 
-    price = random.uniform(lower_bound, upper_bound)
+    price = round(random.uniform(lower_bound, upper_bound), 2)
 
     return exchange, stock, price
