@@ -14,13 +14,16 @@ import copy
 
 fake = Faker("en_US")
 
-#Customer information
+# Customer information
+
 
 def generate_suffix():
     return fake.suffix() if random.random() < 0.03 else None
 
+
 def generate_middle():
     return fake.first_name() if random.random() < 0.32 else None
+
 
 def generate_phone_home():
     area_code = fake.random_number(digits=3, fix_len=True)
@@ -28,12 +31,14 @@ def generate_phone_home():
     line_number = fake.random_number(digits=4, fix_len=True)
     return f"{area_code}-{central_office_code}-{line_number}"
 
+
 def generate_phone_business():
     area_code = fake.random_number(digits=3, fix_len=True)
     central_office_code = fake.random_number(digits=3, fix_len=True)
     line_number = fake.random_number(digits=4, fix_len=True)
     return (f"{area_code}-{central_office_code}-{line_number}"
             if random.random() < 0.21 else None)
+
 
 def generate_email():
     birth_year = birth_date[:4]
@@ -61,47 +66,81 @@ def generate_email():
     email = f"{first_choice}{random.choice(spacing_email)}{second_email}{forth_choice}{domain_name}"
     return email
 
+
 def generate_employment(generated_num):
     return 1 if generated_num == 1 else None
+
 
 def generate_job(generated_num):
     return fake.job() if generated_num == 1 else None
 
+
 def generate_employer(generated_num):
     return employer_choice if generated_num == 1 else None
 
-def generate_ssn_front():
+
+def generate_tax_id():
     area_num = fake.random_number(digits=3, fix_len=True)
     group_num = fake.random_number(digits=2, fix_len=True)
-    return f"{area_num}-{group_num}"
-
-def generate_ssn_back():
     serial_num = fake.random_number(digits=4, fix_len=True)
-    return serial_num
+    return f"{area_num}-{group_num}-{serial_num}"
+
 
 def generate_exp_date():
     exp_month = random.randint(1, 12)
     exp_year = random.randint(2023, 2035)
     return f"{exp_month}/{exp_year}"
 
+
 def generate_id_types():
     return random.randint(1, 5)
+
 
 def generate_is_organization():
     return "0"
 
-#Joint information
+# Joint information
+
+def generate_joint_email():
+    birth_year = birth_date[:4]
+    domain_name = "@example.com"
+    first_email = [
+        joint_first_name.lower(),
+        joint_first_name[0].lower(),
+        last_name.lower(),
+        last_name[0].lower(),
+        fake.safe_color_name().lower(),
+        fake.word().lower(),
+        fake.building_number(),
+        fake.street_suffix().lower(),
+    ]
+
+    spacing_email = ["_", ".", ""]
+    first_choice = random.choice(first_email)
+    second_email = random.choice(
+        [name for name in first_email if name != first_choice])
+    third_email = birth_year
+    if random.random() < 0.36:
+        forth_choice = third_email
+    else:
+        forth_choice = ""
+    email = f"{first_choice}{random.choice(spacing_email)}{second_email}{forth_choice}{domain_name}"
+    return email
+
 
 def generate_joint_employment(generated_joint_num):
     return 1 if generated_joint_num == 1 else None
 
+
 def generate_joint_job(generated_joint_num):
     return fake.job() if generated_joint_num == 1 else None
+
 
 def generate_joint_employer(generated_joint_num):
     return joint_employer_choice if generated_joint_num == 1 else None
 
-#Account information
+# Account information
+
 
 def generate_acct_num(acct_type_id):
     ira_acct_num = random.randint(10000000, 25999999)
@@ -118,32 +157,40 @@ def generate_acct_num(acct_type_id):
     else:
         return f"6000{savings_acct_num}"
 
+
 def generate_contact_method():
     return 1 if random.random() < 0.34 else None
+
 
 def generate_investment_objectives():
     client_investment_objective = random.randint(1, 5)
     return client_investment_objective
 
+
 def generate_source_of_funding():
     client_source_of_funding = random.randint(1, 7)
     return client_source_of_funding
+
 
 def generate_purpose_of_account():
     client_purpose_of_account = random.randint(1, 7)
     return client_purpose_of_account
 
+
 def generate_anticipated_activity():
     client_anticipated_activity = random.randint(1, 4)
     return client_anticipated_activity
 
+
 def generate_jurisdiction_country():
-    return "United States"
+    return 1
+
 
 def generate_acct_pass():
     word = fake.word()
     num = random.randint(1, 9999)
     return f"{word}{num}"
+
 
 def acct_bal(acct_status):
     acct_bal_value = round(random.uniform(5000.00, 5000.00), 2)
@@ -153,51 +200,61 @@ def acct_bal(acct_status):
         return acct_bal_value
 
 # Haversine formula to compute the distance between two sets of latitudes and longitudes
+
+
 def haversine_distance(lat1, lon1, lat2, lon2):
     R = 6371  # Earth's radius in kilometers
     dlat = math.radians(lat2 - lat1)
     dlon = math.radians(lon2 - lon1)
-    a = math.sin(dlat/2) * math.sin(dlat/2) + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon/2) * math.sin(dlon/2)
+    a = math.sin(dlat/2) * math.sin(dlat/2) + math.cos(math.radians(lat1)) * \
+        math.cos(math.radians(lat2)) * math.sin(dlon/2) * math.sin(dlon/2)
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
     distance = R * c
     return distance
 
+
 def generate_rep_id(rep_status):
     n = 5
-    rep_id = "".join(random.choices(string.ascii_uppercase + string.digits, k=n))
-    
+    rep_id = "".join(random.choices(
+        string.ascii_uppercase + string.digits, k=n))
+
     if rep_status == 'trade':
         return rep_id if random.random() < 0.03 else None
     if rep_status == '4':
         return rep_id
     if rep_status == 'employee':
-        return rep_id
+        if main_client == 1:
+            return rep_id
+        else:
+            return None
     else:
         None
 
-#Beneficiary information
+# Beneficiary information
+
 
 def generate_bene_cust_id():
     bene_cust_id = random.randint(100000, 1000000000)
     return str(bene_cust_id).zfill(10)
 
+
 def generate_bene_relationship():
     client_bene_relationship = random.randint(1, 10)
     return client_bene_relationship
 
-def generate_bene_ssn_front():
+
+def generate_bene_tax_id():
     area_num = fake.random_number(digits=3, fix_len=True)
     group_num = fake.random_number(digits=2, fix_len=True)
-    return f"{area_num}-{group_num}"
-
-def generate_bene_ssn_back():
     serial_num = fake.random_number(digits=4, fix_len=True)
-    return serial_num
+    return f"{area_num}-{group_num}-{serial_num}"
+
 
 def generate_bene_portion(num_beneficiaries):
     return 100 / num_beneficiaries
 
-#POA information
+# POA information
+
 
 def generate_poa_cust_id(poa_random):
     poa_cust_id = random.randint(100000, 1000000000)
@@ -206,6 +263,7 @@ def generate_poa_cust_id(poa_random):
     else:
         return None
 
+
 def generate_poa_role(poa_random):
     if poa_random == 1:
         client_poa = random.randint(1, 3)
@@ -213,11 +271,13 @@ def generate_poa_role(poa_random):
     else:
         return None
 
+
 def generate_poa_first_name(poa_random):
     if poa_random == 1:
         return fake.first_name()
     else:
         return None
+
 
 def generate_poa_last_name(poa_random):
     if poa_random == 1:
@@ -225,20 +285,16 @@ def generate_poa_last_name(poa_random):
     else:
         return None
 
-def generate_poa_ssn_front(poa_random):
+
+def generate_poa_tax_id(poa_random):
     if poa_random == 1:
         area_num = fake.random_number(digits=3, fix_len=True)
         group_num = fake.random_number(digits=2, fix_len=True)
-        return f"{area_num}-{group_num}"
+        serial_num = fake.random_number(digits=4, fix_len=True)
+        return f"{area_num}-{group_num}-{serial_num}"
     else:
         return None
 
-def generate_poa_ssn_back(poa_random):
-    if poa_random == 1:
-        serial_num = fake.random_number(digits=4, fix_len=True)
-        return serial_num
-    else:
-        return None
 
 def generate_atm_limits():
     atm_limits = [
@@ -256,6 +312,7 @@ def generate_atm_limits():
     ]
     return random.choice(atm_limits)
 
+
 def generate_ach_limits():
     ach_limits = [
         "1000",
@@ -270,6 +327,7 @@ def generate_ach_limits():
     ]
     return random.choice(ach_limits)
 
+
 def generate_wire_limits():
     wire_limits = [
         "100000",
@@ -279,6 +337,7 @@ def generate_wire_limits():
         "10000000"
     ]
     return random.choice(wire_limits)
+
 
 def get_acct_types(acct_type):
     acct_types = {
@@ -302,13 +361,16 @@ def get_acct_types(acct_type):
     }
     return acct_types.get(acct_type)
 
-#Employee Info
+# Employee Info
+
 
 def generate_emp_suffix():
     return fake.suffix() if random.random() < 0.03 else None
 
+
 def generate_middle():
     return fake.first_name() if random.random() < 0.32 else None
+
 
 def generate_emp_phone():
     area_code = fake.random_number(digits=3, fix_len=True)
@@ -316,14 +378,13 @@ def generate_emp_phone():
     line_number = fake.random_number(digits=4, fix_len=True)
     return f"{area_code}-{central_office_code}-{line_number}"
 
-def generate_ssn_front():
+
+def generate_emp_tax_id():
     area_num = fake.random_number(digits=3, fix_len=True)
     group_num = fake.random_number(digits=2, fix_len=True)
-    return f"{area_num}-{group_num}"
-
-def generate_ssn_back():
     serial_num = fake.random_number(digits=4, fix_len=True)
-    return serial_num    
+    return f"{area_num}-{group_num}-{serial_num}"
+
 
 def termination_reason(termination_date_math):
     if termination_date_math is None:
@@ -331,20 +392,23 @@ def termination_reason(termination_date_math):
     else:
         return random.randint(1, 4)
 
+
 def rehireable(termination_reason_result):
     if termination_reason_result in [1, 2, 3]:
         return 1
     elif termination_reason_result == 4:
         return 0
 
+
 def generate_emp_pass():
-    if position in range(38,62):
-        emp_pass= fake.password(length=8)
+    if position in range(38, 62):
+        emp_pass = fake.password(length=8)
         return emp_pass
     else:
         return None
 
-#Transactions
+# Transactions
+
 
 def get_transaction_types(transaction_type):
     transaction_types = {
@@ -362,6 +426,7 @@ def get_transaction_types(transaction_type):
     }
     return transaction_types.get(transaction_type)
 
+
 accounts_data = []
 
 beneficiaries_data = []
@@ -376,23 +441,31 @@ transactions_data = []
 
 trades_data = []
 
-cust_records = 100
-emp_records = 100
+holdings_data = []
 
-def format_desc(text, length=30):
+cust_records = 1
+emp_records = 1000
+
+# tqdm Customization
+
+
+def format_desc(text, length=55):
     return f"{text:.<{length}}"
 
-#Generate clients
-for i in tqdm(range(cust_records), desc=format_desc("Processing Clients")): 
-    #Customer information
+
+bar_format = "{desc:<55}: {percentage:3.0f}%|{bar:100}| {n_fmt}/{total_fmt} | [{remaining}]"
+
+# Generate clients
+for i in tqdm(range(cust_records), desc=format_desc("Generating Clients"), bar_format=bar_format):
+    # Customer information
     first_name = fake.first_name()
     joint_first_name = fake.first_name()
     last_name = fake.last_name()
     job = fake.job().lower()
 
     chosen_city = random.choice(city_info)
-    
-    city, state, zip_code, lat1, lon1 = chosen_city
+
+    zip_id, city, state, state_id, zip, lat1, lon1 = chosen_city
 
     account_holder_name = f"{first_name} {last_name}"
 
@@ -455,7 +528,7 @@ for i in tqdm(range(cust_records), desc=format_desc("Processing Clients")):
 
     generated_address_2 = generate_address_2()
 
-    #Account information
+    # Account information
 
     online_banking = random.getrandbits(1)
 
@@ -474,13 +547,12 @@ for i in tqdm(range(cust_records), desc=format_desc("Processing Clients")):
     closest_branch = None
     min_distance = float('inf')
     for comp_location in comp_zips:
-        _, comp_city, comp_st, comp_zip, lat2, lon2, type_id = comp_location
+        comp_id, comp_city, comp_state, comp_state_id, comp_zip, comp_zip_id, lat2, lon2, type_id = comp_location
         distance = haversine_distance(lat1, lon1, lat2, lon2)
         if type_id == 2:
             if distance < min_distance:
                 min_distance = distance
-                closest_branch = comp_city, comp_st, comp_zip, type_id
-
+                closest_branch = comp_id
 
     if random.random() < 0.15:
         poa_random = 1
@@ -498,9 +570,9 @@ for i in tqdm(range(cust_records), desc=format_desc("Processing Clients")):
         closed_date = None
 
     num_of_accts = 1
-    #random.randint(1, 5)
+    # random.randint(1, 5)
 
-    #Generate customer data
+    # Generate customer data
     customer_data = {
         "cust_secondary_id": str(cust_secondary_id).zfill(10),
         "first_name": first_name,
@@ -511,21 +583,19 @@ for i in tqdm(range(cust_records), desc=format_desc("Processing Clients")):
         "client_since": client_since,
         "is_organization": generate_is_organization(),
         "id_type": generate_id_types(),
-        "email": generate_email(),
-        "phone_home": generate_phone_home(),
-        "phone_business": generate_phone_business(),
-        "address": generated_address,
-        "address_2": generated_address_2,
-        "city": city,
-        "state": state,
-        "zip_code": str(zip_code).zfill(5),
-        "country": generate_jurisdiction_country(),
+        "cust_email": generate_email(),
+        "cust_phone_home": generate_phone_home(),
+        "cust_phone_business": generate_phone_business(),
+        "cust_address": generated_address,
+        "cust_address_2": generated_address_2,
+        "cust_city": city,
+        "cust_state": state_id,
+        "cust_zip": zip_id,
+        "cust_country": generate_jurisdiction_country(),
         "employment_status": generate_employment(generated_num),
         "employer_name": generate_employer(generated_num),
         "occupation": stripped_job,
-        "encrypted_tax_a": generate_ssn_front(),
-        "tax_b": generate_ssn_back(),
-        "dl_state": state,
+        "tax_id": generate_tax_id(),
         "dl_num": fake.passport_number(),
         "dl_exp": generate_exp_date(),
         "mothers_maiden": fake.last_name(),
@@ -536,10 +606,10 @@ for i in tqdm(range(cust_records), desc=format_desc("Processing Clients")):
     }
     customers_data.append(customer_data)
 
-    #Generate account data
+    # Generate account data
     for i in range(num_of_accts):
-        generate_acct_type = 7
-        #random.randint(1, 17)
+        generate_acct_type = 8
+        # random.randint(1, 17)
 
         acct_type_info = get_acct_types(generate_acct_type)
 
@@ -572,17 +642,16 @@ for i in tqdm(range(cust_records), desc=format_desc("Processing Clients")):
             "contact_address": generated_address,
             "contact_address_2": generated_address_2,
             "contact_city": city,
-            "contact_state": state,
-            "contact_zip": str(zip_code).zfill(5),
+            "contact_state": state_id,
+            "contact_zip": zip_id,
             "jurisdiction_country": generate_jurisdiction_country(),
-            "jurisdiction_state": state,
+            "jurisdiction_state": state_id,
             "acct_pass": generate_acct_pass(),
             "poa_cust_id": generate_poa_cust_id(poa_random),
             "poa_role": generate_poa_role(poa_random),
             "poa_first_name": generate_poa_first_name(poa_random),
             "poa_last_name": generate_poa_last_name(poa_random),
-            "poa_encrypted_tax_a": generate_poa_ssn_front(poa_random),
-            "poa_tax_b": generate_poa_ssn_back(poa_random),
+            "poa_tax_id": generate_poa_tax_id(poa_random),
             "acct_bal": acct_bal(acct_status),
             "online": online_banking,
             "mobile": mobile_banking,
@@ -592,14 +661,11 @@ for i in tqdm(range(cust_records), desc=format_desc("Processing Clients")):
             "ach_limit": generate_ach_limits(),
             "wire_limit": generate_wire_limits(),
             "client_since": client_since,
-            "acct_branch_city": closest_branch[0],
-            "acct_branch_st": closest_branch[1],
-            "acct_branch_zip": closest_branch[2],
-            "acct_type_id": closest_branch[3]
+            "acct_branch_id": closest_branch
         }
         accounts_data.append(account_data)
 
-    #Generate joint cutomer data
+    # Generate joint cutomer data
     if generate_acct_type in [8, 11, 14]:
         joint_data = {
             "cust_secondary_id": str(joint_secondary_id).zfill(10),
@@ -612,20 +678,20 @@ for i in tqdm(range(cust_records), desc=format_desc("Processing Clients")):
             "client_since": client_since,
             "is_organization": generate_is_organization(),
             "id_type": generate_id_types(),
-            "email": generate_email(),
-            "phone_home": generate_phone_home(),
-            "phone_business": generate_phone_business(),
-            "address": generated_address,
-            "address_2": generated_address_2,
-            "city": city,
-            "state": state,
-            "zip_code": str(zip_code).zfill(5),
+            "cust_email": generate_joint_email(),
+            "cust_phone_home": generate_phone_home(),
+            "cust_phone_business": generate_phone_business(),
+            "cust_address": generated_address,
+            "cust_address_2": generated_address_2,
+            "cust_city": city,
+            "cust_state": state_id,
+            "cust_zip": zip_id,
+            "cust_country": generate_jurisdiction_country(),
             "employment_status": generate_employment(generated_joint_num),
             "employer_name": generate_joint_employer(generated_joint_num),
             "occupation": joint_stripped_job,
-            "encrypted_tax_a": generate_ssn_front(),
-            "tax_b": generate_ssn_back(),
-            "dl_state": state,
+            "tax_id": generate_tax_id(),
+            "dl_state": state_id,
             "dl_num": fake.passport_number(),
             "dl_exp": generate_exp_date(),
             "mothers_maiden": fake.last_name(),
@@ -638,7 +704,7 @@ for i in tqdm(range(cust_records), desc=format_desc("Processing Clients")):
         customers_data.append(joint_data)
         joints_data.append(joint_data)
 
-    #Generate beneficiary number between 1 and 4
+    # Generate beneficiary number between 1 and 4
     num_beneficiaries = random.randint(1, 4)
 
     for i in range(num_beneficiaries):
@@ -647,16 +713,15 @@ for i in tqdm(range(cust_records), desc=format_desc("Processing Clients")):
             "bene_cust_id": generate_bene_cust_id(),
             "bene_first_name": fake.first_name(),
             "bene_last_name": last_name,
-            "bene_encrypted_tax_a": generate_bene_ssn_front(),
-            "bene_tax_b": generate_bene_ssn_back(),
+            "bene_tax_id": generate_bene_tax_id(),
             "bene_relationship": generate_bene_relationship(),
             "bene_portion": generate_bene_portion(num_beneficiaries),
             "client_since": client_since,
         }
         beneficiaries_data.append(bene_data)
 
-#Generate transactions
-for account in tqdm(accounts_data, desc=format_desc("Processing Transactions")):
+# Generate transactions
+for account in tqdm(accounts_data, desc=format_desc("Generating Transactions"), bar_format=bar_format):
     acct_num = account["acct_num"]
     acct_bal_value = account["acct_bal"]
     client_since = datetime.strptime(account["client_since"], "%Y-%m-%d")
@@ -670,15 +735,15 @@ for account in tqdm(accounts_data, desc=format_desc("Processing Transactions")):
     savings_transaction_type_list = [1, 2, 5, 8, 9, 10, 11]
     generated_dates = []
 
-    #Get retirement accounts
+    # Get retirement accounts
     if acct_type_id in range(1, 8):
-        for i in range(num_transactions):  #Generate range of dates
+        for i in range(num_transactions):  # Generate range of dates
             transaction_date = client_since + \
                 timedelta(days=random.randint(
                     0, (closed_date - client_since).days))
             generated_dates.append(transaction_date)
 
-        generated_dates.sort()  #Sort range of dates from earliest to latest
+        generated_dates.sort()  # Sort range of dates from earliest to latest
 
         temp_transactions = []
 
@@ -692,9 +757,9 @@ for account in tqdm(accounts_data, desc=format_desc("Processing Transactions")):
             transaction_amt = round(random.uniform(50.00, 1000.00), 2)
             stock_exchange, stock_id, trade_price = generate_trade()
             buy_quantity = round(transaction_amt / trade_price, 2)
-            sell_quantity = random.randint(1,5)
+            sell_quantity = random.randint(1, 5)
 
-            if transaction_info[0] == 3: # Buy
+            if transaction_info[0] == 3:  # Buy
                 transaction_data = {
                     "acct_num": acct_num,
                     "transaction_type": transaction_info[0],
@@ -702,7 +767,7 @@ for account in tqdm(accounts_data, desc=format_desc("Processing Transactions")):
                     "transaction_date": transaction_date_str,
                 }
                 temp_transactions.append(transaction_data)
-                
+
                 trade_data = {
                     "acct_num": acct_num,
                     "transaction_date": transaction_date_str,
@@ -719,7 +784,7 @@ for account in tqdm(accounts_data, desc=format_desc("Processing Transactions")):
                 }
                 trades_data.append(trade_data)
 
-            elif transaction_info[0] == 4: # Sell
+            elif transaction_info[0] == 4:  # Sell
                 sell_transaction_amt = round(sell_quantity * trade_price, 2)
 
                 transaction_data = {
@@ -755,8 +820,8 @@ for account in tqdm(accounts_data, desc=format_desc("Processing Transactions")):
                 }
                 temp_transactions.append(transaction_data)
 
-        #Now, process these transactions
-        #First loop for preprocessing transactions based on running_balance
+        # Now, process these transactions
+        # First loop for preprocessing transactions based on running_balance
         running_balance = acct_bal_value
         for transaction in temp_transactions:
             transaction_type = transaction["transaction_type"]
@@ -772,9 +837,9 @@ for account in tqdm(accounts_data, desc=format_desc("Processing Transactions")):
             else:
                 running_balance -= transaction_amt
 
-        #Second loop for actually processing transactions
+        # Second loop for actually processing transactions
         for transaction in temp_transactions:
-            #Capture the current balance as the previous balance before modifying it
+            # Capture the current balance as the previous balance before modifying it
             previous_bal = acct_bal_value
 
             transaction_type = transaction["transaction_type"]
@@ -785,14 +850,45 @@ for account in tqdm(accounts_data, desc=format_desc("Processing Transactions")):
             else:
                 acct_bal_value -= transaction_amt
 
-            #Proceed with setting transaction and balance details
+            # Proceed with setting transaction and balance details
             final_acct_balances[acct_num] = round(acct_bal_value, 2)
             transaction["transaction_id"] = len(transactions_data) + 1
             transaction["pre_bal"] = round(previous_bal, 2)
             transaction["post_bal"] = round(acct_bal_value, 2)
             transactions_data.append(transaction)
 
-    #Get brokerage accounts
+        stock_info = {}
+
+        for trade in trades_data:
+            stock_id = trade["stock_id"]
+            trade_type = trade["trade_type"]
+            trade_quantity = trade["trade_quantity"]
+            trade_amount = trade["trade_amount"]
+
+            if stock_id not in stock_info:
+                stock_info[stock_id] = {"quantity": 0, "total_cost": 0}
+
+            if trade_type == 3:
+                stock_info[stock_id]["quantity"] += trade_quantity
+                stock_info[stock_id]["total_cost"] += trade_amount
+            elif trade_type == 4:
+                stock_info[stock_id]["quantity"] -= trade_quantity
+
+            if stock_info[stock_id]["quantity"] > 0:
+                average_cost = stock_info[stock_id]["total_cost"] / \
+                    stock_info[stock_id]["quantity"]
+            else:
+                average_cost = 0.0
+
+            holding_data = {
+                "acct_num": acct_num,
+                "stock_id": stock_id,
+                "quantity": stock_info[stock_id]["quantity"],
+                "average_cost": average_cost
+            }
+            holdings_data.append(holding_data)
+
+    # Get brokerage accounts
     elif acct_type_id in range(8, 16):
         for i in range(num_transactions):
             transaction_date = client_since + \
@@ -814,9 +910,9 @@ for account in tqdm(accounts_data, desc=format_desc("Processing Transactions")):
             transaction_amt = round(random.uniform(50.00, 1000.00), 2)
             stock_exchange, stock_id, trade_price = generate_trade()
             buy_quantity = transaction_amt / trade_price
-            sell_quantity = random.randint(1,5)
+            sell_quantity = random.randint(1, 5)
 
-            if transaction_info[0] == 3: # Buy
+            if transaction_info[0] == 3:  # Buy
                 transaction_data = {
                     "acct_num": acct_num,
                     "transaction_type": transaction_info[0],
@@ -824,7 +920,7 @@ for account in tqdm(accounts_data, desc=format_desc("Processing Transactions")):
                     "transaction_date": transaction_date_str,
                 }
                 temp_transactions.append(transaction_data)
-                
+
                 trade_data = {
                     "acct_num": acct_num,
                     "transaction_date": transaction_date_str,
@@ -841,7 +937,7 @@ for account in tqdm(accounts_data, desc=format_desc("Processing Transactions")):
                 }
                 trades_data.append(trade_data)
 
-            elif transaction_info[0] == 4: # Sell
+            elif transaction_info[0] == 4:  # Sell
                 sell_transaction_amt = round(sell_quantity * trade_price, 2)
 
                 transaction_data = {
@@ -877,8 +973,8 @@ for account in tqdm(accounts_data, desc=format_desc("Processing Transactions")):
                 }
                 temp_transactions.append(transaction_data)
 
-        #Now, process these transactions
-        #First loop for preprocessing transactions based on running_balance
+        # Now, process these transactions
+        # First loop for preprocessing transactions based on running_balance
         running_balance = acct_bal_value
         for transaction in temp_transactions:
             transaction_type = transaction["transaction_type"]
@@ -894,9 +990,9 @@ for account in tqdm(accounts_data, desc=format_desc("Processing Transactions")):
             else:
                 running_balance -= transaction_amt
 
-        #Second loop for actually processing transactions
+        # Second loop for actually processing transactions
         for transaction in temp_transactions:
-            #Capture the current balance as the previous balance before modifying it
+            # Capture the current balance as the previous balance before modifying it
             previous_bal = acct_bal_value
 
             transaction_type = transaction["transaction_type"]
@@ -907,14 +1003,45 @@ for account in tqdm(accounts_data, desc=format_desc("Processing Transactions")):
             else:
                 acct_bal_value -= transaction_amt
 
-            #Proceed with setting transaction and balance details
+            # Proceed with setting transaction and balance details
             final_acct_balances[acct_num] = round(acct_bal_value, 2)
             transaction["transaction_id"] = len(transactions_data) + 1
             transaction["pre_bal"] = round(previous_bal, 2)
             transaction["post_bal"] = round(acct_bal_value, 2)
             transactions_data.append(transaction)
 
-    #Get checking accounts
+        stock_info = {}
+
+        for trade in trades_data:
+            stock_id = trade["stock_id"]
+            trade_type = trade["trade_type"]
+            trade_quantity = trade["trade_quantity"]
+            trade_amount = trade["trade_amount"]
+
+            if stock_id not in stock_info:
+                stock_info[stock_id] = {"quantity": 0, "total_cost": 0}
+
+            if trade_type == 3:
+                stock_info[stock_id]["quantity"] += trade_quantity
+                stock_info[stock_id]["total_cost"] += trade_amount
+            elif trade_type == 4:
+                stock_info[stock_id]["quantity"] -= trade_quantity
+
+            if stock_info[stock_id]["quantity"] > 0:
+                average_cost = stock_info[stock_id]["total_cost"] / \
+                    stock_info[stock_id]["quantity"]
+            else:
+                average_cost = 0.0
+
+            holding_data = {
+                "acct_num": acct_num,
+                "stock_id": stock_id,
+                "quantity": stock_info[stock_id]["quantity"],
+                "average_cost": average_cost
+            }
+            holdings_data.append(holding_data)
+
+    # Get checking accounts
     elif acct_type_id == 16:
         for i in range(num_transactions):
             transaction_date = client_since + \
@@ -941,8 +1068,8 @@ for account in tqdm(accounts_data, desc=format_desc("Processing Transactions")):
             }
             temp_transactions.append(transaction_data)
 
-        #Now, process these transactions
-        #First loop for preprocessing transactions based on running_balance
+        # Now, process these transactions
+        # First loop for preprocessing transactions based on running_balance
         running_balance = acct_bal_value
         for transaction in temp_transactions:
             transaction_type = transaction["transaction_type"]
@@ -958,9 +1085,9 @@ for account in tqdm(accounts_data, desc=format_desc("Processing Transactions")):
             else:
                 running_balance -= transaction_amt
 
-        #Second loop for actually processing transactions
+        # Second loop for actually processing transactions
         for transaction in temp_transactions:
-            #Capture the current balance as the previous balance before modifying it
+            # Capture the current balance as the previous balance before modifying it
             previous_bal = acct_bal_value
 
             transaction_type = transaction["transaction_type"]
@@ -971,14 +1098,14 @@ for account in tqdm(accounts_data, desc=format_desc("Processing Transactions")):
             else:
                 acct_bal_value -= transaction_amt
 
-            #Proceed with setting transaction and balance details
+            # Proceed with setting transaction and balance details
             final_acct_balances[acct_num] = round(acct_bal_value, 2)
             transaction["transaction_id"] = len(transactions_data) + 1
             transaction["pre_bal"] = round(previous_bal, 2)
             transaction["post_bal"] = round(acct_bal_value, 2)
             transactions_data.append(transaction)
 
-    #Get savings account
+    # Get savings account
     else:
         for i in range(num_transactions):
             transaction_date = client_since + \
@@ -1009,8 +1136,8 @@ for account in tqdm(accounts_data, desc=format_desc("Processing Transactions")):
             }
             temp_transactions.append(transaction_data)
 
-        #Now, process these transactions
-        #First loop for preprocessing transactions based on running_balance
+        # Now, process these transactions
+        # First loop for preprocessing transactions based on running_balance
         running_balance = acct_bal_value
         for transaction in temp_transactions:
             transaction_type = transaction["transaction_type"]
@@ -1026,9 +1153,9 @@ for account in tqdm(accounts_data, desc=format_desc("Processing Transactions")):
             else:
                 running_balance -= transaction_amt
 
-        #Second loop for actually processing transactions
+        # Second loop for actually processing transactions
         for transaction in temp_transactions:
-            #Capture the current balance as the previous balance before modifying it
+            # Capture the current balance as the previous balance before modifying it
             previous_bal = acct_bal_value
 
             transaction_type = transaction["transaction_type"]
@@ -1039,16 +1166,16 @@ for account in tqdm(accounts_data, desc=format_desc("Processing Transactions")):
             else:
                 acct_bal_value -= transaction_amt
 
-            #Proceed with setting transaction and balance details
+            # Proceed with setting transaction and balance details
             final_acct_balances[acct_num] = round(acct_bal_value, 2)
             transaction["transaction_id"] = len(transactions_data) + 1
             transaction["pre_bal"] = round(previous_bal, 2)
             transaction["post_bal"] = round(acct_bal_value, 2)
             transactions_data.append(transaction)
 
-#Generate employees
-for i in tqdm(range(emp_records), desc=format_desc("Processing Employees")):
-    #Employee information
+# Generate employees
+for i in tqdm(range(emp_records), desc=format_desc("Generating Employees"), bar_format=bar_format):
+    # Employee information
     emp_first_name = fake.first_name()
     emp_last_name = fake.last_name()
 
@@ -1071,13 +1198,13 @@ for i in tqdm(range(emp_records), desc=format_desc("Processing Employees")):
     hire_date = hire_date_math.strftime("%Y-%m-%d")
     birth_date = birth_date_math.strftime("%Y-%m-%d")
 
-    emp_city, emp_state, emp_zip, position, salary = generate_zip_position_salary()
+    emp_city, emp_state, emp_state_id, emp_zip, emp_zip_id, position, main_client, salary = generate_zip_position_salary()
 
     emp_id = i + 1
 
     emp_secondary_id = i + 1
 
-    #Generate employee data
+    # Generate employee data
     employee_data = {
         "emp_secondary_id": emp_secondary_id,
         "emp_first_name": emp_first_name,
@@ -1093,13 +1220,13 @@ for i in tqdm(range(emp_records), desc=format_desc("Processing Employees")):
         "emp_address": generate_emp_address(),
         "emp_address_2": generate_emp_address_2(),
         "emp_city": emp_city,
-        "emp_state": emp_state,
-        "emp_zip_code": str(emp_zip).zfill(5),
-        "emp_encrypted_tax_a": generate_ssn_front(),
-        "emp_tax_b": generate_ssn_back(),
+        "emp_state": emp_state_id,
+        "emp_zip": emp_zip_id,
+        "emp_tax_id": generate_emp_tax_id(),
         "effective_date": hire_date,
         "salary_amount": salary,
         "position_location_id": position,
+        "main_client": main_client,
         "start_date": hire_date,
         "end_date": termination_date_math,
         "termination_date_2": termination_date_math,
@@ -1109,36 +1236,66 @@ for i in tqdm(range(emp_records), desc=format_desc("Processing Employees")):
     }
     employees_data.append(employee_data)
 
-df_account_info = pd.DataFrame(accounts_data)
 
-df_customer_info = pd.DataFrame(customers_data)
+def create_dataframe_with_tqdm(data, name):
+    desc = format_desc(f"Creating {name}")
+    for i in tqdm(range(1), desc=desc, bar_format=bar_format):
+        df = pd.DataFrame(data)
+    return df
 
-df_beneficiary_info = pd.DataFrame(beneficiaries_data)
 
-df_joint_info = pd.DataFrame(joints_data)
+df_account_info = create_dataframe_with_tqdm(
+    accounts_data, "Account Info Dataframe")
 
-df_employee_info = pd.DataFrame(employees_data)
+df_customer_info = create_dataframe_with_tqdm(
+    customers_data, "Customer Info Dataframe")
 
-df_transaction_info = pd.DataFrame(transactions_data)
+df_beneficiary_info = create_dataframe_with_tqdm(
+    beneficiaries_data, "Beneficiary Info Dataframe")
 
-df_trade_info = pd.DataFrame(trades_data)
+df_joint_info = create_dataframe_with_tqdm(joints_data, "Joint Info Dataframe")
 
-#Customer information
-df_customer_info = df_customer_info.sort_values("client_since")
-df_customer_info["cust_id"] = range(1, len(df_customer_info) + 1)
+df_employee_info = create_dataframe_with_tqdm(
+    employees_data, "Customer Info Dataframe")
+
+df_transaction_info = create_dataframe_with_tqdm(
+    transactions_data, "Transaction Info Dataframe")
+
+df_trade_info = create_dataframe_with_tqdm(trades_data, "Trade Info Dataframe")
+
+df_holding_info = create_dataframe_with_tqdm(
+    holdings_data, "Holding Info Dataframe")
+
+# Customer information
+for i in tqdm(range(1), desc=format_desc("Sorting Customer Info"), bar_format=bar_format):
+    df_customer_info = df_customer_info.sort_values("client_since")
+
+for i in tqdm(range(1), desc=format_desc("Assigning Customer ID"), bar_format=bar_format):
+    df_customer_info["cust_id"] = range(1, len(df_customer_info) + 1)
 
 df_cust_contact = df_customer_info[[
     "cust_id",
-    "email",
-    "phone_home",
-    "phone_business",
-    "address",
-    "address_2",
-    "city",
-    "state",
-    "zip_code",
-    "country"
+    "cust_email",
+    "cust_phone_home",
+    "cust_phone_business",
+    "cust_address",
+    "cust_address_2",
+    "cust_city",
+    "cust_state",
+    "cust_zip",
+    "cust_country"
 ]].copy()
+
+for i in tqdm(range(1), desc=format_desc("Converting Customer Contact Decimal to String"), bar_format=bar_format):
+    df_cust_contact['cust_city'] = df_cust_contact['cust_city'].astype(
+        str).replace('\.0', "", regex=True)
+
+    df_cust_contact['cust_country'] = df_cust_contact['cust_country'].astype(
+        str).replace('\.0', "", regex=True)
+
+dataframes_cust_contact = [
+    (df_cust_contact, "cust_contact.csv"),
+]
 
 df_cust_emp = df_customer_info[[
     "cust_id",
@@ -1147,17 +1304,26 @@ df_cust_emp = df_customer_info[[
     "occupation"
 ]].copy()
 
-df_cust_emp['employment_status'] = df_cust_emp['employment_status'].astype(
-    str).replace('\.0', "", regex=True)
+for i in tqdm(range(1), desc=format_desc("Converting Customer Employee Decimal to String"), bar_format=bar_format):
+    df_cust_emp['employment_status'] = df_cust_emp['employment_status'].astype(
+        str).replace('\.0', "", regex=True)
+
+dataframes_cust_emp = [
+    (df_cust_emp, "cust_emp.csv"),
+]
 
 df_cust_id = df_customer_info[[
     "cust_id",
     "id_type",
-    "state",
+    "cust_state",
     "dl_num",
     "dl_exp",
     "mothers_maiden"
-]].copy()
+]].copy().rename(columns={"cust_state": "id_state"})
+
+dataframes_cust_id = [
+    (df_cust_id, "cust_id.csv"),
+]
 
 df_cust_info = df_customer_info[[
     "cust_id",
@@ -1171,6 +1337,10 @@ df_cust_info = df_customer_info[[
     "is_organization"
 ]].copy()
 
+dataframes_cust_info = [
+    (df_cust_info, "cust_info.csv"),
+]
+
 df_cust_privacy = df_customer_info[[
     "cust_id",
     "voice_auth",
@@ -1178,72 +1348,73 @@ df_cust_privacy = df_customer_info[[
     "share_affiliates"
 ]].copy()
 
-df_cust_tax = df_customer_info[[
-    "cust_id",
-    "encrypted_tax_a",
-    "tax_b"
-]].copy()
-
-dataframes_cust_contact = [
-    (df_cust_contact, "cust_contact.csv"),
-]
-
-dataframes_cust_emp = [
-    (df_cust_emp, "cust_emp.csv"),
-]
-
-dataframes_cust_id = [
-    (df_cust_id, "cust_id.csv"),
-]
-
-dataframes_cust_info = [
-    (df_cust_info, "cust_info.csv"),
-]
-
 dataframes_cust_privacy = [
     (df_cust_privacy, "cust_privacy.csv"),
 ]
+
+df_cust_tax = df_customer_info[[
+    "cust_id",
+    "tax_id",
+]].copy()
 
 dataframes_cust_tax = [
     (df_cust_tax, "cust_tax.csv")
 ]
 
-for df, filename in tqdm(dataframes_cust_contact, desc=format_desc("cust_contact.csv")):
+for df, filename in tqdm(dataframes_cust_contact, desc=format_desc("Creating cust_contact.csv"), bar_format=bar_format):
     df.to_csv(filename, index=False)
 
-for df, filename in tqdm(dataframes_cust_emp, desc=format_desc("cust_emp.csv")):
+for df, filename in tqdm(dataframes_cust_emp, desc=format_desc("Creating cust_emp.csv"), bar_format=bar_format):
     df.to_csv(filename, index=False)
 
-for df, filename in tqdm(dataframes_cust_id, desc=format_desc("cust_id.csv")):
+for df, filename in tqdm(dataframes_cust_id, desc=format_desc("Creating cust_id.csv"), bar_format=bar_format):
     df.to_csv(filename, index=False)
 
-for df, filename in tqdm(dataframes_cust_info, desc=format_desc("cust_info.csv")):
+for df, filename in tqdm(dataframes_cust_info, desc=format_desc("Creating cust_info.csv"), bar_format=bar_format):
     df.to_csv(filename, index=False)
 
-for df, filename in tqdm(dataframes_cust_privacy, desc=format_desc("cust_privacy.csv")):
+for df, filename in tqdm(dataframes_cust_privacy, desc=format_desc("Creating cust_privacy.csv"), bar_format=bar_format):
     df.to_csv(filename, index=False)
 
-for df, filename in tqdm(dataframes_cust_tax, desc=format_desc("cust_tax.csv")):
+for df, filename in tqdm(dataframes_cust_tax, desc=format_desc("Creating cust_tax.csv"), bar_format=bar_format):
     df.to_csv(filename, index=False)
 
-#Account information
-df_account_info = df_account_info.sort_values("client_since")
+# Account information
+for i in tqdm(range(1), desc=format_desc("Sorting Account Info"), bar_format=bar_format):
+    df_account_info = df_account_info.sort_values("client_since")
 
-df_beneficiary_info = df_beneficiary_info.sort_values("client_since")
+for i in tqdm(range(1), desc=format_desc("Sorting Beneficiary Info"), bar_format=bar_format):
+    df_beneficiary_info = df_beneficiary_info.sort_values("client_since")
 
-df_transaction_info = df_transaction_info.sort_values("transaction_date")
+for i in tqdm(range(1), desc=format_desc("Sorting Transaction Info"), bar_format=bar_format):
+    df_transaction_info = df_transaction_info.sort_values("transaction_date")
 
-df_trade_info = df_trade_info.sort_values("transaction_date")
+for i in tqdm(range(1), desc=format_desc("Sorting Trade Info"), bar_format=bar_format):
+    df_trade_info = df_trade_info.sort_values("transaction_date")
 
-df_account_info["acct_id"] = range(1, len(df_account_info) + 1)
+for i in tqdm(range(1), desc=format_desc("Assigning acct_id to Account Info"), bar_format=bar_format):
+    df_account_info["acct_id"] = range(1, len(df_account_info) + 1)
 
-df_account_info["cust_id"] = range(1, len(df_account_info) + 1)
+for i in tqdm(range(1), desc=format_desc("Assigning cust_id to Account Info"), bar_format=bar_format):
+    df_account_info["cust_id"] = range(1, len(df_account_info) + 1)
 
-df_transaction_info["transaction_id"] = range(1, len(df_transaction_info) + 1)
+for i in tqdm(range(1), desc=format_desc("Assigning bene_id to Account Info"), bar_format=bar_format):
+    df_beneficiary_info["bene_id"] = range(1, len(df_beneficiary_info) + 1)
 
-df_trade_info["trade_id"] = range(1, len(df_trade_info) + 1)
+for i in tqdm(range(1), desc=format_desc("Assigning poa_id to Account Info"), bar_format=bar_format):
+    df_account_info["poa_id"] = range(1, len(df_account_info) + 1)
 
-for acct_num, final_bal in final_acct_balances.items():
+for i in tqdm(range(1), desc=format_desc("Assigning transaction_id to Account Transactions"), bar_format=bar_format):
+    df_transaction_info["transaction_id"] = range(
+        1, len(df_transaction_info) + 1)
+
+for i in tqdm(range(1), desc=format_desc("Assigning trade_id to Account Trade"), bar_format=bar_format):
+    df_trade_info["trade_id"] = range(1, len(df_trade_info) + 1)
+
+for i in tqdm(range(1), desc=format_desc("Assigning holding_id to Account Holding"), bar_format=bar_format):
+    df_holding_info["holding_id"] = range(1, len(df_holding_info) + 1)
+
+for acct_num, final_bal in tqdm(final_acct_balances.items(), desc=format_desc("Updating Account Balance"), bar_format=bar_format):
     df_account_info.loc[df_account_info['acct_num']
                         == acct_num, 'acct_bal'] = final_bal
 
@@ -1253,12 +1424,12 @@ df_acct_bal = df_account_info[[
 ]].copy()
 
 df_acct_bene = df_beneficiary_info[[
+    "bene_id",
     "acct_num",
     "bene_cust_id",
     "bene_first_name",
     "bene_last_name",
-    "bene_encrypted_tax_a",
-    "bene_tax_b",
+    "bene_tax_id",
     "bene_relationship",
     "bene_portion",
     "client_since",
@@ -1266,15 +1437,19 @@ df_acct_bene = df_beneficiary_info[[
 
 bene_acct_num_dict = {}
 
-for index, row in df_acct_bene.iterrows():
+for index, row in tqdm(df_acct_bene.iterrows(), total=df_acct_bene.shape[0], desc=format_desc("Updating Beneficiary Account Number to Account ID"), bar_format=bar_format):
     acct_num = row['acct_num']
     if acct_num not in bene_acct_num_dict:
         bene_acct_num_dict[acct_num] = len(bene_acct_num_dict) + 1
     df_acct_bene.at[index, 'acct_num'] = bene_acct_num_dict[acct_num]
 
-df_acct_bene = df_acct_bene.rename(columns={'acct_num': 'acct_id'})
 
-df_acct_bene = df_acct_bene.drop(columns=['client_since'])
+for i in tqdm(range(1), desc=format_desc("Renaming Account Number to Account ID"), bar_format=bar_format):
+    df_acct_bene = df_acct_bene.rename(columns={'acct_num': 'acct_id'})
+
+
+for i in tqdm(range(1), desc=format_desc("Dropping Client Since"), bar_format=bar_format):
+    df_acct_bene = df_acct_bene.drop(columns=['client_since'])
 
 df_acct_contact = df_account_info[[
     "acct_id",
@@ -1288,22 +1463,25 @@ df_acct_contact = df_account_info[[
 
 df_acct_contact = df_acct_contact
 
-if df_joint_info.empty:
-    merged_df = df_account_info.copy()
-    merged_df['joint_cust_secondary_id'] = 'NONE'
-else:
-    merged_df = pd.merge(df_account_info, df_joint_info[[
-                         'acct_num', 'joint_cust_secondary_id']], on='acct_num', how='left')
+for i in tqdm(range(1), desc=format_desc("Joining Joint Info to Account Holders"), bar_format=bar_format):
+    if df_joint_info.empty:
+        merged_df = df_account_info.copy()
+        merged_df['joint_cust_secondary_id'] = 'NONE'
+    else:
+        merged_df = pd.merge(df_account_info, df_joint_info[[
+            'acct_num', 'joint_cust_secondary_id']], on='acct_num', how='left')
 
 df_acct_holders = merged_df[[
     "acct_id", "acct_num", "cust_secondary_id", "joint_cust_secondary_id", "client_since"
 ]].copy()
 
-df_acct_holders.drop(["acct_num", "client_since"], axis=1, inplace=True)
+for i in tqdm(range(1), desc=format_desc("Dropping Account Number and Client Since"), bar_format=bar_format):
+    df_acct_holders.drop(["acct_num", "client_since"], axis=1, inplace=True)
 
 df_acct_info = df_account_info[[
     "acct_id",
     "acct_num",
+    "initial_contact_method",
     "acct_type",
     "registration_name",
     "acct_objective",
@@ -1312,11 +1490,10 @@ df_acct_info = df_account_info[[
     "acct_activity",
     "cust_id",
     "acct_nickname",
-    "rep_id",
-    "initial_contact_method",
     "client_since",
     "acct_status",
-    "closed_date"
+    "closed_date",
+    "rep_id"
 ]].copy()
 
 df_acct_jurisdiction = df_account_info[[
@@ -1330,22 +1507,24 @@ df_acct_mobile = df_account_info[[
 df_acct_pass = df_account_info[["acct_id", "acct_pass"]].copy()
 
 df_acct_poa = df_account_info[[
+    "poa_id",
     "acct_id",
     "poa_cust_id",
     "poa_role",
     "poa_first_name",
     "poa_last_name",
-    "poa_encrypted_tax_a",
-    "poa_tax_b",
+    "poa_tax_id",
 ]].copy()
 
-df_acct_poa.dropna(subset=["poa_cust_id"], inplace=True)
+for i in tqdm(range(1), desc=format_desc("Dropping Empty Power of Attorney Rows"), bar_format=bar_format):
+    df_acct_poa.dropna(subset=["poa_cust_id"], inplace=True)
 
-df_acct_poa['poa_role'] = df_acct_poa['poa_role'].astype(
-    str).replace('\.0', "", regex=True)
+for i in tqdm(range(1), desc=format_desc("Converting Power of Attorney Decimal to String"), bar_format=bar_format):
+    df_acct_poa['poa_role'] = df_acct_poa['poa_role'].astype(
+        str).replace('\.0', "", regex=True)
 
-df_acct_poa['poa_tax_b'] = df_acct_poa['poa_tax_b'].astype(
-    str).replace('\.0', "", regex=True)
+    # df_acct_poa['poa_tax_b'] = df_acct_poa['poa_tax_b'].astype(
+    #     str).replace('\.0', "", regex=True)
 
 df_acct_limit = df_account_info[[
     "acct_id",
@@ -1366,10 +1545,7 @@ df_acct_transaction = df_transaction_info[[
 
 df_acct_branch = df_account_info[[
     "acct_id",
-    "acct_branch_city",
-    "acct_branch_st",
-    "acct_branch_zip",
-    "acct_type_id"
+    "acct_branch_id"
 ]].copy()
 
 df_acct_trade = df_trade_info[[
@@ -1388,7 +1564,7 @@ df_acct_trade = df_trade_info[[
     "rep_id"
 ]].copy()
 
-df_acct_stock_holdings = df_stock_info[[
+df_acct_holding = df_holding_info[[
     "holding_id",
     "acct_num",
     "stock_id",
@@ -1398,36 +1574,36 @@ df_acct_stock_holdings = df_stock_info[[
 
 transaction_acct_num_dict = {}
 
-for index, row in df_acct_transaction.iterrows():
+for index, row in tqdm(df_acct_transaction.iterrows(), total=df_acct_transaction.shape[0], desc=format_desc("Updating Transaction Account Number to Account ID"), bar_format=bar_format):
     acct_num = row['acct_num']
     if acct_num not in transaction_acct_num_dict:
-        transaction_acct_num_dict[acct_num] = len(transaction_acct_num_dict) + 1
-    df_acct_transaction.at[index, 'acct_num'] = transaction_acct_num_dict[acct_num]
+        transaction_acct_num_dict[acct_num] = len(
+            transaction_acct_num_dict) + 1
+    df_acct_transaction.at[index,
+                           'acct_num'] = transaction_acct_num_dict[acct_num]
 
 df_acct_transaction = df_acct_transaction.rename(
     columns={'acct_num': 'acct_id'})
 
 trade_acct_num_dict = {}
 
-for index, row in df_acct_trade.iterrows():
+for index, row in tqdm(df_acct_trade.iterrows(), total=df_acct_trade.shape[0], desc=format_desc("Updating Trade Account Number to Account ID"), bar_format=bar_format):
     acct_num = row['acct_num']
     if acct_num not in trade_acct_num_dict:
         trade_acct_num_dict[acct_num] = len(trade_acct_num_dict) + 1
     df_acct_trade.at[index, 'acct_num'] = trade_acct_num_dict[acct_num]
 
-df_acct_trade = df_acct_trade.rename(
-    columns={'acct_num': 'acct_id'})
+df_acct_trade = df_acct_trade.rename(columns={'acct_num': 'acct_id'})
 
 stock_holdings_dict = {}
 
-for index, row in df_acct_stock_holdings.iterrows():
+for index, row in tqdm(df_acct_holding.iterrows(), total=df_acct_holding.shape[0], desc=format_desc("Updating Stock Holding Account Number to Account ID"), bar_format=bar_format):
     acct_num = row['acct_num']
     if acct_num not in stock_holdings_dict:
         stock_holdings_dict[acct_num] = len(stock_holdings_dict) + 1
-    df_acct_stock_holdings.at[index, 'acct_num'] = stock_holdings_dict[acct_num]
+    df_acct_holding.at[index, 'acct_num'] = stock_holdings_dict[acct_num]
 
-df_acct_stock_holdings = df_acct_stock_holdings.rename(
-    columns={'acct_num': 'acct_id'})
+df_acct_holding = df_acct_holding.rename(columns={'acct_num': 'acct_id'})
 
 dataframes_acct_bal = [
     (df_acct_bal, "acct_bal.csv")
@@ -1481,61 +1657,64 @@ dataframes_acct_trade = [
     (df_acct_trade, "acct_trade.csv")
 ]
 
-dataframes_acct_stock_holdings = [
-    (df_acct_trade, "acct_stock_holdings.csv")
+dataframes_acct_holdings = [
+    (df_acct_holding, "acct_holding.csv")
 ]
 
-for df, filename in tqdm(dataframes_acct_bal, desc=format_desc("acct_bal.csv")):
+for df, filename in tqdm(dataframes_acct_bal, desc=format_desc("Creating acct_bal.csv"), bar_format=bar_format):
     df.to_csv(filename, index=False)
 
-for df, filename in tqdm(dataframes_acct_contact, desc=format_desc("acct_contact.csv")):
+for df, filename in tqdm(dataframes_acct_contact, desc=format_desc("Creating acct_contact.csv"), bar_format=bar_format):
     df.to_csv(filename, index=False)
 
-for df, filename in tqdm(dataframes_acct_info, desc=format_desc("acct_info.csv")):
+for df, filename in tqdm(dataframes_acct_info, desc=format_desc("Creating acct_info.csv"), bar_format=bar_format):
     df.to_csv(filename, index=False)
 
-for df, filename in tqdm(dataframes_acct_pass, desc=format_desc("acct_pass.csv")):
+for df, filename in tqdm(dataframes_acct_pass, desc=format_desc("Creating acct_pass.csv"), bar_format=bar_format):
     df.to_csv(filename, index=False)
 
-for df, filename in tqdm(dataframes_acct_jurisdiction, desc=format_desc("acct_jurisdiction.csv")):
+for df, filename in tqdm(dataframes_acct_jurisdiction, desc=format_desc("Creating acct_jurisdiction.csv"), bar_format=bar_format):
     df.to_csv(filename, index=False)
 
-for df, filename in tqdm(dataframes_acct_mobile, desc=format_desc("acct_mobile.csv")):
+for df, filename in tqdm(dataframes_acct_mobile, desc=format_desc("Creating acct_mobile.csv"), bar_format=bar_format):
     df.to_csv(filename, index=False)
 
-for df, filename in tqdm(dataframes_acct_holders, desc=format_desc("acct_holders.csv")):
+for df, filename in tqdm(dataframes_acct_holders, desc=format_desc("Creating acct_holders.csv"), bar_format=bar_format):
     df.to_csv(filename, index=False)
 
-for df, filename in tqdm(dataframes_acct_bene, desc=format_desc("acct_bene.csv")):
+for df, filename in tqdm(dataframes_acct_bene, desc=format_desc("Creating acct_bene.csv"), bar_format=bar_format):
     df.to_csv(filename, index=False)
 
-for df, filename in tqdm(dataframes_acct_poa, desc=format_desc("accacct_poat_.csv")):
+for df, filename in tqdm(dataframes_acct_poa, desc=format_desc("Creating acct_poa_.csv"), bar_format=bar_format):
     df.to_csv(filename, index=False)
 
-for df, filename in tqdm(dataframes_acct_limit, desc=format_desc("acct_limit.csv")):
+for df, filename in tqdm(dataframes_acct_limit, desc=format_desc("Creating acct_limit.csv"), bar_format=bar_format):
     df.to_csv(filename, index=False)
 
-for df, filename in tqdm(dataframes_acct_transaction, desc=format_desc("acct_transaction.csv")):
+for df, filename in tqdm(dataframes_acct_transaction, desc=format_desc("Creating acct_transaction.csv"), bar_format=bar_format):
     df.to_csv(filename, index=False)
 
-for df, filename in tqdm(dataframes_acct_branch, desc=format_desc("acct_branch.csv")):
+for df, filename in tqdm(dataframes_acct_branch, desc=format_desc("Creating acct_branch.csv"), bar_format=bar_format):
     df.to_csv(filename, index=False)
 
-for df, filename in tqdm(dataframes_acct_trade, desc=format_desc("acct_trade.csv")):
+for df, filename in tqdm(dataframes_acct_trade, desc=format_desc("Creating acct_trade.csv"), bar_format=bar_format):
     df.to_csv(filename, index=False)
 
-for df, filename in tqdm(dataframes_acct_stock_holdings, desc=format_desc("acct_stock_holdings.csv")):
+for df, filename in tqdm(dataframes_acct_holdings, desc=format_desc("Creating acct_holding.csv"), bar_format=bar_format):
     df.to_csv(filename, index=False)
 
-#Employee information
-df_employee_info = df_employee_info.sort_values("hire_date")
+# Employee information
 
-df_employee_info["emp_id"] = range(1, len(df_employee_info) + 1)
+for i in tqdm(range(1), desc=format_desc("Sorting Employee Info"), bar_format=bar_format):
+    df_employee_info = df_employee_info.sort_values("hire_date")
 
-df_employee_info["emp_secondary_id"] = [
-    f"A{i:08}" for i in range(1,
-                              len(df_employee_info) + 1)
-]
+for i in tqdm(range(1), desc=format_desc("Assigning Employee ID"), bar_format=bar_format):
+    df_employee_info["emp_id"] = range(1, len(df_employee_info) + 1)
+
+for i in tqdm(range(1), desc=format_desc("Assigning Employee Secondary ID"), bar_format=bar_format):
+    df_employee_info["emp_secondary_id"] = [
+        f"A{i:08}" for i in range(1, len(df_employee_info) + 1)
+    ]
 
 df_emp_contact = df_employee_info[[
     "emp_id",
@@ -1545,7 +1724,7 @@ df_emp_contact = df_employee_info[[
     "emp_address_2",
     "emp_city",
     "emp_state",
-    "emp_zip_code",
+    "emp_zip",
 ]].copy()
 
 df_emp_info = df_employee_info[[
@@ -1565,12 +1744,12 @@ df_emp_pass = df_employee_info[[
     "emp_pass"
 ]].copy()
 
-df_emp_pass.dropna(subset=["emp_pass"], inplace=True)
+for i in tqdm(range(1), desc=format_desc("Dropping Empty Employee Password Rows"), bar_format=bar_format):
+    df_emp_pass.dropna(subset=["emp_pass"], inplace=True)
 
 df_emp_tax = df_employee_info[[
     "emp_id",
-    "emp_encrypted_tax_a",
-    "emp_tax_b"
+    "emp_tax_id"
 ]].copy()
 
 df_emp_rep_id = df_employee_info[[
@@ -1598,24 +1777,26 @@ dataframes_emp_rep_id = [
     (df_emp_rep_id, "emp_rep_id.csv")
 ]
 
-for df, filename in tqdm(dataframes_emp_contact, desc=format_desc("emp_contact.csv")):
+for df, filename in tqdm(dataframes_emp_contact, desc=format_desc("Creating emp_contact.csv"), bar_format=bar_format):
     df.to_csv(filename, index=False)
 
-for df, filename in tqdm(dataframes_emp_info, desc=format_desc("emp_info.csv")):
+for df, filename in tqdm(dataframes_emp_info, desc=format_desc("Creating emp_info.csv"), bar_format=bar_format):
     df.to_csv(filename, index=False)
 
-for df, filename in tqdm(dataframes_emp_pass, desc=format_desc("emp_pass.csv")):
+for df, filename in tqdm(dataframes_emp_pass, desc=format_desc("Creating emp_pass.csv"), bar_format=bar_format):
     df.to_csv(filename, index=False)
 
-for df, filename in tqdm(dataframes_emp_tax, desc=format_desc("emp_tax.csv")):
+for df, filename in tqdm(dataframes_emp_tax, desc=format_desc("Creating emp_tax.csv"), bar_format=bar_format):
     df.to_csv(filename, index=False)
 
-for df, filename in tqdm(dataframes_emp_rep_id, desc=format_desc("emp_rep_id.csv")):
+for df, filename in tqdm(dataframes_emp_rep_id, desc=format_desc("Creating emp_rep_id.csv"), bar_format=bar_format):
     df.to_csv(filename, index=False)
 
-df_employee_info = df_employee_info.sort_values("effective_date")
+for i in tqdm(range(1), desc=format_desc("Sorting Employee Info"), bar_format=bar_format):
+    df_employee_info = df_employee_info.sort_values("effective_date")
 
-df_employee_info["salary_id"] = range(1, len(df_employee_info) + 1)
+for i in tqdm(range(1), desc=format_desc("Assinging Salary ID"), bar_format=bar_format):
+    df_employee_info["salary_id"] = range(1, len(df_employee_info) + 1)
 
 df_emp_salary = df_employee_info[[
     "salary_id",
@@ -1628,27 +1809,31 @@ dataframes_emp_salary = [
     (df_emp_salary, "emp_salary.csv"),
 ]
 
-for df, filename in tqdm(dataframes_emp_salary, desc=format_desc("emp_salary.csv")):
+for df, filename in tqdm(dataframes_emp_salary, desc=format_desc("Creating emp_salary.csv"), bar_format=bar_format):
     df.to_csv(filename, index=False)
 
-df_employee_info = df_employee_info.sort_values("start_date")
+for i in tqdm(range(1), desc=format_desc("Sorting Employee Start Date"), bar_format=bar_format):
+    df_employee_info = df_employee_info.sort_values("start_date")
 
-df_employee_info["emp_position_id"] = range(1, len(df_employee_info) + 1)
+for i in tqdm(range(1), desc=format_desc("Assigning Employee Position ID"), bar_format=bar_format):
+    df_employee_info["emp_position_id"] = range(1, len(df_employee_info) + 1)
 
 df_emp_position = df_employee_info[[
-    "emp_position_id", "emp_id", "position_location_id", "start_date", "end_date"
+    "emp_position_id", "emp_id", "position_location_id", "start_date", "end_date", "main_client"
 ]].copy()
 
 dataframes_emp_position = [
     (df_emp_position, "emp_position.csv"),
 ]
 
-for df, filename in tqdm(dataframes_emp_position, desc=format_desc("emp_position.csv")):
+for df, filename in tqdm(dataframes_emp_position, desc=format_desc("Creating emp_position.csv"), bar_format=bar_format):
     df.to_csv(filename, index=False)
 
-df_employee_info = df_employee_info.sort_values("termination_date_2")
+for i in tqdm(range(1), desc=format_desc("Sorting Termination Info"), bar_format=bar_format):
+    df_employee_info = df_employee_info.sort_values("termination_date_2")
 
-df_employee_info["termination_id"] = range(1, len(df_employee_info) + 1)
+for i in tqdm(range(1), desc=format_desc("Assigning Employee Termindation ID"), bar_format=bar_format):
+    df_employee_info["termination_id"] = range(1, len(df_employee_info) + 1)
 
 df_emp_termination = df_employee_info[[
     "termination_id",
@@ -1658,19 +1843,21 @@ df_emp_termination = df_employee_info[[
     "rehireable"
 ]].copy()
 
-df_emp_termination['reason'] = df_emp_termination['reason'].astype(
-    str).replace('\.0', "", regex=True)
+for i in tqdm(range(1), desc=format_desc("Converting Employee Decimal to String"), bar_format=bar_format):
+    df_emp_termination['reason'] = df_emp_termination['reason'].astype(
+        str).replace('\.0', "", regex=True)
 
-df_emp_termination['rehireable'] = df_emp_termination['rehireable'].astype(
-    str).replace('\.0', "", regex=True)
+    df_emp_termination['rehireable'] = df_emp_termination['rehireable'].astype(
+        str).replace('\.0', "", regex=True)
 
-df_emp_termination.dropna(subset=["termination_date_2"], inplace=True)
+for i in tqdm(range(1), desc=format_desc("Dropping Termination Date Column"), bar_format=bar_format):
+    df_emp_termination.dropna(subset=["termination_date_2"], inplace=True)
 
 dataframes_emp_termination = [
     (df_emp_termination, "emp_termination.csv"),
 ]
 
-for df, filename in tqdm(dataframes_emp_termination, desc=format_desc("emp_termination.csv")):
+for df, filename in tqdm(dataframes_emp_termination, desc=format_desc("Creating emp_termination.csv"), bar_format=bar_format):
     df.to_csv(filename, index=False)
 
 print("Data generation complete!")
