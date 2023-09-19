@@ -1,7 +1,7 @@
 import random
 
-#Customer Address
-#List of zip_id, city, state, state_id, zip, latitude, and longitude in the United States
+# Customer Address
+# List of zip_id, city, state, state_id, zip, latitude, and longitude in the United States
 city_info = [
     [1, 'Adjuntas', 'PR', 52, 601, 18.18004, -66.75218],
     [2, 'Aguada', 'PR', 52, 602, 18.36073, -67.17517],
@@ -39441,9 +39441,10 @@ city_info = [
     [39436, 'Ketchikan', 'AK', 2, 99950, 56.3695, -131.93648],
 ]
 
+
 def generate_address():
     street_num = random.randint(1, 5999)
-    
+
     # list of street names
     street_name = [
         "10th",
@@ -41784,7 +41785,7 @@ def generate_address():
         "Zoe Dell",
         "Zoo",
     ]
-    
+
     # list of street suffix
     street_suffix = [
         "Aly",
@@ -41814,20 +41815,23 @@ def generate_address():
         "Way",
         "Xing",
     ]
-    
+
     return f"{street_num} {random.choice(street_name)} {random.choice(street_suffix)}"
+
 
 def generate_address_2():
     address = ["Apt", "Suite", "Unit"]
-    
+
     return (f"{random.choice(address)} {random.randint(1,999)}"
-        if random.random() < 0.14 else None)
+            if random.random() < 0.14 else None)
 
 # Employee Address/Position Generation
+
+
 def generate_emp_address():
     street_num = random.randint(1, 5999)
-    
-    #List of street names
+
+    # List of street names
     street_name = [
         "10th",
         "11th",
@@ -44167,8 +44171,8 @@ def generate_emp_address():
         "Zoe Dell",
         "Zoo",
     ]
-    
-    #List of street suffix
+
+    # List of street suffix
     street_emp_suffix = [
         "Aly",
         "Ave",
@@ -44197,19 +44201,19 @@ def generate_emp_address():
         "Way",
         "Xing",
     ]
-    
+
     return f"{street_num} {random.choice(street_name)} {random.choice(street_emp_suffix)}"
+
 
 def generate_emp_address_2():
     emp_address = ["Apt", "Suite", "Unit"]
-    
+
     return (f"{random.choice(emp_address)} {random.randint(1,999)}"
-        if random.random() < 0.14 else None)
-
-#Company Positions and Address    
-#List of position_location_id, location_id, min_salary, max_salary, and main_client_access from Bank DB
+            if random.random() < 0.14 else None)
 
 
+# Company Positions and Address
+# List of position_location_id, location_id, min_salary, max_salary, and main_client_access from Bank DB
 comp_positions = [
     [1, 1, 1, 150000, 1000000, 0],
     [2, 1, 2, 150000, 500000, 0],
@@ -48166,7 +48170,7 @@ comp_positions = [
     [3953, 535, 43, 40000, 80000, 1],
     [3954, 535, 44, 25000, 50000, 1],
 ]
-#List of company location_id, city, state, state_id, zip, zip_id, latitude, longitude, and type_id  
+# List of company location_id, city, state, state_id, zip, zip_id, latitude, longitude, and type_id
 comp_zips = [
     [1, 'San Francisco', 'CA', 5, 94119, 36821, 37.7801, -122.46246, 1],
     [2, 'Orlando', 'FL', 10, 32801, 12713, 28.54176, -81.37358, 1],
@@ -48705,6 +48709,7 @@ comp_zips = [
     [535, 'Summit Station', 'PA', 39, 17979, 6490, 40.56151, -76.19974, 2],
 ]
 
+
 def generate_zip_position_salary():
     selected_location = random.choice(comp_zips)
 
@@ -48717,13 +48722,11 @@ def generate_zip_position_salary():
     selected_position = random.choice(location_positions)
 
     city = selected_location[1]
-    state = selected_location[2]
     state_id = selected_location[3]
-    zip = selected_location[4]
     zip_id = selected_location[5]
     min_salary = selected_position[3]
     max_salary = selected_position[4]
     main_client_access = selected_position[5]
     salary = random.randint(min_salary, max_salary)
 
-    return city, state, state_id, zip, zip_id, selected_position[0], main_client_access, salary
+    return city, state_id, zip_id, selected_position[0], main_client_access, salary
