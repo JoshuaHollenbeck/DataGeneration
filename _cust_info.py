@@ -1,6 +1,3 @@
-# TODO Work on data datatype lengths
-
-
 from tqdm import tqdm
 from faker import Faker
 from datetime import datetime, timedelta
@@ -17,7 +14,6 @@ random.seed(time.time())
 fake = Faker("en_US")
 
 # Customer information
-
 def generate_suffix():
     return fake.suffix() if random.random() < 0.03 else None
 
@@ -39,7 +35,9 @@ def generate_phone_business():
 
 def generate_email():
     birth_year = birth_date[:4]
+    
     domain_name = "@example.com"
+    
     first_email = [
         first_name.lower(),
         first_name[0].lower(),
@@ -52,31 +50,71 @@ def generate_email():
     ]
 
     spacing_email = ["_", ".", ""]
+    
     first_choice = random.choice(first_email)
     second_email = random.choice(
         [name for name in first_email if name != first_choice])
     third_email = birth_year
+    
     if random.random() < 0.36:
         forth_choice = third_email
     else:
         forth_choice = ""
+    
     email = f"{first_choice}{random.choice(spacing_email)}{second_email}{forth_choice}{domain_name}"
+    
     return email
 
-def generate_employment(generated_num):
+def generate_num(probability = 0.96):
+    return 1 if random.random() < probability else 0
+
+def generate_employment_status(generated_num):
     return 1 if generated_num == 1 else None
 
 def generate_job(generated_num):
-    return fake.job() if generated_num == 1 else None
+    job = fake.job()
+     
+    # Split by comma and take the first par
+    job = job.split(',')[0]
+     
+    # Split by "/" and take the first par
+    job = job.split('/')[0]
+    
+    # Capitalize job title
+    job = str.title((job))
+    
+    return job if generated_num == 1 else None
 
 def generate_employer(generated_num):
-    return employer_choice if generated_num == 1 else None
+    if generated_num == 1:
+        choices = [
+            fake.first_name().title() + " " + fake.company_suffix(),
+            fake.last_name().title() + " " + fake.company_suffix(),
+            fake.safe_color_name().title() + " " + fake.word().title() + " " +
+            fake.company_suffix(),
+            fake.safe_color_name().title() + " " + fake.company_suffix(),
+            fake.word().title() + " " + fake.safe_color_name().title() + " " +
+            fake.company_suffix(),
+            fake.word().title() + " " + fake.company_suffix(),
+            fake.street_suffix().title() + " " + fake.company_suffix(),
+            fake.last_name().title() + " & Sons",
+            fake.first_name().title() + " & Sons",
+        ]
 
-def generate_tax_id():
-    area_num = fake.random_number(digits=3, fix_len=True)
-    group_num = fake.random_number(digits=2, fix_len=True)
-    serial_num = fake.random_number(digits=4, fix_len=True)
-    return f"{area_num}-{group_num}-{serial_num}"
+        sep = ","
+        return random.choice(choices)
+
+    else:
+        return None
+
+def generate_tax_id(num):
+    if num == 1:
+        area_num = fake.random_number(digits=3, fix_len=True)
+        group_num = fake.random_number(digits=2, fix_len=True)
+        serial_num = fake.random_number(digits=4, fix_len=True)
+        return f"{area_num}-{group_num}-{serial_num}"
+    else:
+        return None
 
 def generate_exp_date():
     exp_month = random.randint(1, 12)
@@ -87,7 +125,52 @@ def generate_id_types():
     return random.randint(1, 5)
 
 def generate_is_organization():
-    return "0"
+    return 1 if random.random() < 0 else 0
+
+generated_cust_id = set()
+
+def generate_secondary_id(num):
+    while True:  # Infinite loop to keep generating until a unique number is found.
+        if num == 1:
+            cust_id = random.randint(100000, 1000000000)            
+
+            if cust_id not in generated_cust_id:
+                generated_cust_id.add(cust_id)
+                #Fill empty digits up to 10
+                return cust_id
+        else:
+            return None
+
+def generate_dates():
+    # Start date and end date for cust since date, birthdate, and acct closure date
+    start_date = datetime(1970, 1, 1)
+    end_date = datetime.today()
+    
+    # Math to get cust since date
+    cust_since_math = start_date + timedelta(days=random.randint(0, (end_date - start_date).days))
+
+    # Math to get birthdate
+    years_to_subtract = random.randint(1, 80)
+    birth_date_math = cust_since_math - timedelta(days=years_to_subtract * 365)
+
+    # Math to get acct closure date
+    closed_date_math = cust_since_math + timedelta(days=random.randint(0, (end_date - cust_since_math).days))
+
+    # 
+    cust_since = cust_since_math.strftime("%Y-%m-%d")
+    
+    birth_date = birth_date_math.strftime("%Y-%m-%d")
+    joint_birth_date = birth_date_math.strftime("%Y-%m-%d")
+    
+    hire_date = cust_since_math.strftime("%Y-%m-%d")
+    emp_birth_date = birth_date_math.strftime("%Y-%m-%d")
+    
+    if random.random() < 0.45:
+        termination_date_math = start_date + timedelta(days=random.randint(0, (end_date - start_date).days))
+    else:
+        termination_date_math = None
+    
+    return cust_since, birth_date, joint_birth_date, closed_date_math, emp_birth_date, hire_date, termination_date_math
 
 # Joint information
 def generate_joint_email():
@@ -116,51 +199,82 @@ def generate_joint_email():
     email = f"{first_choice}{random.choice(spacing_email)}{second_email}{forth_choice}{domain_name}"
     return email
 
-def generate_joint_employment(generated_joint_num):
-    return 1 if generated_joint_num == 1 else None
+# Account information
+generated_acct_nums = set()
 
-def generate_joint_job(generated_joint_num):
-    return fake.job() if generated_joint_num == 1 else None
-
-def generate_joint_employer(generated_joint_num):
-    return joint_employer_choice if generated_joint_num == 1 else None
-
-# Account information\
-generated_account_numbers = set()
-
-def generate_acct_num(acct_type_id):
-    while True:  # Infinite loop to keep generating until a unique number is found.
+def generate_acct_nums(acct_type_id):
+    # Infinite loop to keep generating until a unique number is found.
+    while True:
         if acct_type_id in range(1, 8):
-            num = random.randint(10000000, 25999999)
+            acct_num = random.randint(10000000, 25999999)
         elif acct_type_id in range(8, 16):
-            num = random.randint(26000000, 49999999)
+            acct_num = random.randint(26000000, 49999999)
         elif acct_type_id == 16:
-            num = int(f"4000{random.randint(50000000, 75999999)}")
+            acct_num = int(f"4000{random.randint(50000000, 75999999)}")
         else:
-            num = int(f"6000{random.randint(76000000, 99999999)}")
+            acct_num = int(f"6000{random.randint(76000000, 99999999)}")
 
-        if num not in generated_account_numbers:
-            generated_account_numbers.add(num)
-            return num
+        if acct_num not in generated_acct_nums:
+            generated_acct_nums.add(acct_num)
+            return acct_num
+
+def get_acct_status():
+    if random.random() < 0.96:
+        acct_status = 1
+    else:
+        acct_status = 0
+    
+    return acct_status
+
+def get_closed_date(acct_status):
+    if acct_status == 1:
+        closed_date = closed_date_math.strftime("%Y-%m-%d")
+    else:
+        closed_date = None
+    
+    return closed_date
+
+def get_closest_branch():
+    closest_branch = None
+    
+    # Initialize min_distance with infinity to ensure any subsequent distance is smaller
+    min_distance = float('inf')
+
+    # Loop through all company locations
+    for comp_location in comp_zips:
+        comp_id, _, _, _, _, _, lat2, lon2, type_id = comp_location
+        
+        # Calculate the distance from the current location to a given point using the haversine formula
+        distance = haversine_distance(lat1, lon1, lat2, lon2)
+        
+        # Check if the current location is of type 'branch'
+        if type_id == 2:
+            # If the current distance is the smallest encountered so far, update min_distance and closest_branch
+            if distance < min_distance:
+                min_distance = distance
+                closest_branch = comp_id
+   
+    # Return the ID of the closest branch found
+    return closest_branch
 
 def generate_contact_method():
     return 1 if random.random() < 0.34 else None
 
 def generate_investment_objectives():
-    client_investment_objective = random.randint(1, 5)
-    return client_investment_objective
+    cust_investment_objective = random.randint(1, 5)
+    return cust_investment_objective
 
 def generate_source_of_funding():
-    client_source_of_funding = random.randint(1, 7)
-    return client_source_of_funding
+    cust_source_of_funding = random.randint(1, 7)
+    return cust_source_of_funding
 
 def generate_purpose_of_account():
-    client_purpose_of_account = random.randint(1, 7)
-    return client_purpose_of_account
+    cust_purpose_of_account = random.randint(1, 7)
+    return cust_purpose_of_account
 
 def generate_anticipated_activity():
-    client_anticipated_activity = random.randint(1, 4)
-    return client_anticipated_activity
+    cust_anticipated_activity = random.randint(1, 4)
+    return cust_anticipated_activity
 
 def generate_jurisdiction_country():
     return 1
@@ -171,20 +285,32 @@ def generate_acct_pass():
     return f"{word}{num}"
 
 def acct_bal(acct_status):
-    acct_bal_value = round(random.uniform(5000.00, 5000.00), 2)
+    acct_bal_value = round(random.uniform(5000.00, 10000.00), 2)
     if acct_status == 0:
         return 0
     else:
         return acct_bal_value
 
-# Haversine formula to compute the distance between two sets of latitudes and longitudes
+# Use haversine formula to compute the distance between two sets of latitudes and longitudes
 def haversine_distance(lat1, lon1, lat2, lon2):
-    R = 6371  # Earth's radius in kilometers
+    # Earth's radius in kilometers
+    R = 6371
+    
+    # Convert the difference in latitudes from degrees to radians
     dlat = math.radians(lat2 - lat1)
+
+    # Convert the difference in longitudes from degrees to radians
     dlon = math.radians(lon2 - lon1)
+    
+    # Calculate the square of half the chord length between the two points using Haversine formula
     a = math.sin(dlat / 2) * math.sin(dlat / 2) + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2) * math.sin(dlon / 2)
+    
+    # Compute the angular distance in radians
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    
+    # Convert the angular distance from radians to actual distance using the Earth's radius
     distance = R * c
+    
     return distance
 
 def generate_rep_id(rep_status):
@@ -203,60 +329,6 @@ def generate_rep_id(rep_status):
             return None
     else:
         None
-
-# Beneficiary information
-def generate_bene_cust_id():
-    bene_cust_id = random.randint(100000, 1000000000)
-    return str(bene_cust_id).zfill(10)
-
-def generate_bene_relationship():
-    client_bene_relationship = random.randint(1, 10)
-    return client_bene_relationship
-
-def generate_bene_tax_id():
-    area_num = fake.random_number(digits=3, fix_len=True)
-    group_num = fake.random_number(digits=2, fix_len=True)
-    serial_num = fake.random_number(digits=4, fix_len=True)
-    return f"{area_num}-{group_num}-{serial_num}"
-
-def generate_bene_portion(num_beneficiaries):
-    return 100 / num_beneficiaries
-
-# POA information
-def generate_poa_cust_id(poa_random):
-    poa_cust_id = random.randint(100000, 1000000000)
-    if poa_random == 1:
-        return str(poa_cust_id).zfill(10)
-    else:
-        return None
-
-def generate_poa_role(poa_random):
-    if poa_random == 1:
-        client_poa = random.randint(1, 3)
-        return client_poa
-    else:
-        return None
-
-def generate_poa_first_name(poa_random):
-    if poa_random == 1:
-        return fake.first_name()
-    else:
-        return None
-
-def generate_poa_last_name(poa_random):
-    if poa_random == 1:
-        return fake.last_name()
-    else:
-        return None
-
-def generate_poa_tax_id(poa_random):
-    if poa_random == 1:
-        area_num = fake.random_number(digits=3, fix_len=True)
-        group_num = fake.random_number(digits=2, fix_len=True)
-        serial_num = fake.random_number(digits=4, fix_len=True)
-        return f"{area_num}-{group_num}-{serial_num}"
-    else:
-        return None
 
 def generate_atm_limits():
     atm_limits = [
@@ -320,6 +392,52 @@ def get_acct_types(acct_type):
     }
     return acct_types.get(acct_type)
 
+# Beneficiary information
+def generate_bene_cust_id():
+    bene_cust_id = random.randint(100000, 1000000000)
+    return str(bene_cust_id).zfill(10)
+
+def generate_bene_relationship():
+    cust_bene_relationship = random.randint(1, 10)
+    return cust_bene_relationship
+
+def generate_bene_tax_id():
+    area_num = fake.random_number(digits=3, fix_len=True)
+    group_num = fake.random_number(digits=2, fix_len=True)
+    serial_num = fake.random_number(digits=4, fix_len=True)
+    return f"{area_num}-{group_num}-{serial_num}"
+
+def generate_bene_portion(num_beneficiaries):
+    return round(100 / num_beneficiaries, 2)
+
+# POA information
+def generate_poa_chance():
+    if random.random() < 0.15:
+        poa_num = 1
+    else:
+        poa_num = 0
+    
+    return poa_num
+
+def generate_poa_role(poa_num):
+    if poa_num == 1:
+        cust_poa = random.randint(1, 3)
+        return cust_poa
+    else:
+        return None
+
+def generate_poa_first_name(poa_num):
+    if poa_num == 1:
+        return fake.first_name()
+    else:
+        return None
+
+def generate_poa_last_name(poa_num):
+    if poa_num == 1:
+        return fake.last_name()
+    else:
+        return None
+
 # Employee Info
 def generate_emp_suffix():
     return fake.suffix() if random.random() < 0.03 else None
@@ -339,13 +457,13 @@ def generate_emp_tax_id():
     serial_num = fake.random_number(digits=4, fix_len=True)
     return f"{area_num}-{group_num}-{serial_num}"
 
-def termination_reason(termination_date_math):
+def get_termination_reason(termination_date_math):
     if termination_date_math is None:
         return None
     else:
         return random.randint(1, 4)
 
-def rehireable(termination_reason_result):
+def get_rehireable(termination_reason_result):
     if termination_reason_result in [1, 2, 3]:
         return 1
     elif termination_reason_result == 4:
@@ -380,7 +498,7 @@ def generate_transaction_dates():
     num_transactions = random.randint(1000, 5000)
 
     for i in range(num_transactions):  # Generate range of dates
-        transaction_date = client_since + timedelta(days=random.randint(0, (closed_date - client_since).days))
+        transaction_date = cust_since + timedelta(days=random.randint(0, (closed_date - cust_since).days))
         generated_dates.append(transaction_date)
 
     generated_dates.sort()  # Sort range of dates from earliest to latest
@@ -411,7 +529,7 @@ def get_transaction_details(acct_type):
     
     return transaction_type, transaction_info, amt_min, amt_max
 
-def generate_transactions(acct_type, generated_dates, acct_bal_value):
+def generate_transactions(acct_num, acct_type, generated_dates, acct_bal_value):
     temp_transactions = []
     stock_info = {}
     final_acct_balances = {}
@@ -423,11 +541,13 @@ def generate_transactions(acct_type, generated_dates, acct_bal_value):
         transaction_date_str = transaction_date.strftime("%Y-%m-%d")
         stock_exchange, stock_id, trade_price = generate_trade()
         sell_quantity = random.randint(1, 5)
-        sell_transaction_amt = round(sell_quantity * trade_price, 2)
 
         if acct_type in range (1,8):
             transaction_type, transaction_info, amt_min, amt_max = get_transaction_details(acct_type)
-            transaction_amt = round(random.uniform(amt_min, amt_max), 2)
+            if transaction_info[0] == 4:
+                transaction_amt = round(sell_quantity * trade_price, 2)
+            else:
+                transaction_amt = round(random.uniform(amt_min, amt_max), 2)
             buy_quantity = round(transaction_amt / trade_price, 4)
             
             if transaction_info[0] == 3:  # Buy
@@ -460,13 +580,13 @@ def generate_transactions(acct_type, generated_dates, acct_bal_value):
                     "acct_num": acct_num,
                     "acct_type": acct_type,
                     "transaction_type": transaction_info[0],
-                    "transaction_amt": sell_transaction_amt,
+                    "transaction_amt": transaction_amt,
                     "transaction_date": transaction_date_str,
                     "stock_exchange": stock_exchange,
                     "stock_id": stock_id,
                     "trade_quantity": sell_quantity,
                     "trade_price": trade_price,
-                    "trade_amount": sell_transaction_amt,
+                    "trade_amount": transaction_amt,
                     "trade_status": trade_status,
                     "trade_fees": trade_fees,
                     "currency": currency,
@@ -476,7 +596,7 @@ def generate_transactions(acct_type, generated_dates, acct_bal_value):
 
                 if stock_id in stock_info:
                     stock_info[stock_id]["quantity"] -= sell_quantity
-                    stock_info[stock_id]["total_cost"] -= sell_transaction_amt
+                    stock_info[stock_id]["total_cost"] -= transaction_amt
 
             else:
                 transaction_data = {
@@ -490,7 +610,10 @@ def generate_transactions(acct_type, generated_dates, acct_bal_value):
 
         elif acct_type in range (8, 16):
             transaction_type, transaction_info, amt_min, amt_max = get_transaction_details(acct_type)
-            transaction_amt = round(random.uniform(amt_min, amt_max), 2)
+            if transaction_info[0] == 4:
+                transaction_amt = round(sell_quantity * trade_price, 2)
+            else:
+                transaction_amt = round(random.uniform(amt_min, amt_max), 2)
             buy_quantity = round(transaction_amt / trade_price, 4)
 
             if transaction_info[0] == 3:  # Buy
@@ -523,13 +646,13 @@ def generate_transactions(acct_type, generated_dates, acct_bal_value):
                     "acct_num": acct_num,
                     "acct_type": acct_type,
                     "transaction_type": transaction_info[0],
-                    "transaction_amt": sell_transaction_amt,
+                    "transaction_amt": transaction_amt,
                     "transaction_date": transaction_date_str,
                     "stock_exchange": stock_exchange,
                     "stock_id": stock_id,
                     "trade_quantity": sell_quantity,
                     "trade_price": trade_price,
-                    "trade_amount": sell_transaction_amt,
+                    "trade_amount": transaction_amt,
                     "trade_status": trade_status,
                     "trade_fees": trade_fees,
                     "currency": currency,
@@ -539,7 +662,7 @@ def generate_transactions(acct_type, generated_dates, acct_bal_value):
 
                 if stock_id in stock_info:
                     stock_info[stock_id]["quantity"] -= sell_quantity
-                    stock_info[stock_id]["total_cost"] -= sell_transaction_amt
+                    stock_info[stock_id]["total_cost"] -= transaction_amt
 
             else:
                 transaction_data = {
@@ -662,96 +785,55 @@ def format_desc(text, length=55):
 
 bar_format = "{desc:<55}: {percentage:3.0f}%|{bar:100}| {n_fmt}/{total_fmt} | [{remaining}]"
 
-# Generate clients
-for i in tqdm(range(cust_records), desc=format_desc("Generating Clients"), bar_format=bar_format):
+# Generate custs
+for i in tqdm(range(cust_records), desc=format_desc("Generating Customers"), bar_format=bar_format):
     # Customer information
     first_name = fake.first_name()
-    joint_first_name = fake.first_name()
+    joint_first_name = fake.first_name()    
     last_name = fake.last_name()
-    job = fake.job().lower()
+    is_cust = 1
+    is_joint = 1
+    
+    # Customer city state zip lat and lon
     chosen_city = random.choice(city_info)
     zip_id, city, state, state_id, zip, lat1, lon1 = chosen_city
-    account_holder_name = f"{first_name} {last_name}"
-    start_date = datetime(1970, 1, 1)
-    end_date = datetime(2023, 9, 3)
-    client_since_math = start_date + timedelta(days=random.randint(0, (end_date - start_date).days))
-    years_to_subtract = random.randint(1, 80)
-    birth_date_math = client_since_math - timedelta(days=years_to_subtract * 365)
-    client_since = client_since_math.strftime("%Y-%m-%d")
-    birth_date = birth_date_math.strftime("%Y-%m-%d")
-    joint_birth_date = birth_date_math.strftime("%Y-%m-%d")
-    closed_date_math = client_since_math + timedelta(days=random.randint(0, (end_date - client_since_math).days))
 
-    if random.random() < 0.96:
-        generated_num = 1
-    else:
-        generated_num = 0
+    cust_since, birth_date, joint_birth_date, closed_date_math, emp_birth_date, hire_date, termination_date_math = generate_dates()
 
-    if random.random() < 0.96:
-        generated_joint_num = 1
-    else:
-        generated_joint_num = 0
+    generated_num = generate_num()
+    joint_generated_num = generate_num()
 
-    employer = [
-        fake.first_name().title() + " " + fake.company_suffix(),
-        fake.last_name().title() + " " + fake.company_suffix(),
-        fake.safe_color_name().title() + " " + fake.word().title() + " " +
-        fake.company_suffix(),
-        fake.safe_color_name().title() + " " + fake.company_suffix(),
-        fake.word().title() + " " + fake.safe_color_name().title() + " " +
-        fake.company_suffix(),
-        fake.word().title() + " " + fake.company_suffix(),
-        fake.street_suffix().title() + " " + fake.company_suffix(),
-        fake.last_name().title() + " & Sons",
-        fake.first_name().title() + " & Sons",
-    ]
+    employer_choice = generate_employer(generated_num)
+    joint_employer_choice = generate_employer(joint_generated_num)
 
-    employer_choice = random.choice(employer)
-    joint_employer_choice = random.choice(employer)
-    sep = ","
-    stripped_job = str(generate_job(generated_num)).split(sep, 1)[0]
-    joint_stripped_job = str(generate_joint_job(generated_joint_num)).split(sep, 1)[0]
-    cust_secondary_id = random.randint(100000, 1000000000)
-    joint_secondary_id = random.randint(100000, 1000000000)
     generated_address = generate_address()
     generated_address_2 = generate_address_2()
 
+    cust_secondary_id = generate_secondary_id(is_cust)
+    joint_secondary_id = generate_secondary_id(is_joint)
+
     # Account information
+    account_holder_name = f"{first_name} {last_name}"
     online_banking = random.getrandbits(1)
     mobile_banking = random.getrandbits(1)
     two_factor = random.getrandbits(1)
     biometrics = random.getrandbits(1)
     voice_auth = random.getrandbits(1)
     do_not_call = random.getrandbits(1)
-    share_affiliates = random.getrandbits(1)
-    closest_branch = None
+    share_affiliates = random.getrandbits(1)  
     
-    min_distance = float('inf')
-    for comp_location in comp_zips:
-        comp_id, comp_city, comp_state, comp_state_id, comp_zip, comp_zip_id, lat2, lon2, type_id = comp_location
-        distance = haversine_distance(lat1, lon1, lat2, lon2)
-        if type_id == 2:
-            if distance < min_distance:
-                min_distance = distance
-                closest_branch = comp_id
+    # Get the closest branch
+    closest_branch = get_closest_branch()
+    
+    # Generate power of attorney chances 
+    poa_num = generate_poa_chance()
 
-    if random.random() < 0.15:
-        poa_random = 1
-    else:
-        poa_random = 0
+    # Get acct closure status
+    acct_status = get_acct_status()
+    closed_date = get_closed_date(acct_status)
 
-    if random.random() < 0.96:
-        acct_status = 1
-    else:
-        acct_status = 0
-
-    if acct_status == 1:
-        closed_date = closed_date_math.strftime("%Y-%m-%d")
-    else:
-        closed_date = None
-
-    num_of_accts = 1 
-    # random.randint(1, 5)
+    # Number of accts to create per customer
+    num_of_accts = random.randint(1, 5)
 
     # Generate customer data
     customer_data = {
@@ -761,7 +843,7 @@ for i in tqdm(range(cust_records), desc=format_desc("Generating Clients"), bar_f
         "last_name": last_name,
         "suffix": generate_suffix(),
         "date_of_birth": birth_date,
-        "client_since": client_since,
+        "client_since": cust_since,
         "is_organization": generate_is_organization(),
         "id_type": generate_id_types(),
         "cust_email": generate_email(),
@@ -773,10 +855,10 @@ for i in tqdm(range(cust_records), desc=format_desc("Generating Clients"), bar_f
         "cust_state": state_id,
         "cust_zip": zip_id,
         "cust_country": generate_jurisdiction_country(),
-        "employment_status": generate_employment(generated_num),
-        "employer_name": generate_employer(generated_num),
-        "occupation": stripped_job,
-        "tax_id": generate_tax_id(),
+        "employment_status": generate_employment_status(generated_num),
+        "employer_name": employer_choice,
+        "occupation": generate_job(generated_num),
+        "tax_id": generate_tax_id(is_cust),
         "dl_num": fake.passport_number(),
         "dl_exp": generate_exp_date(),
         "mothers_maiden": fake.last_name(),
@@ -789,12 +871,17 @@ for i in tqdm(range(cust_records), desc=format_desc("Generating Clients"), bar_f
 
     # Generate account data
     for j in range(num_of_accts):
+        # Generate acct type and acct type info
         generate_acct_type = random.randint(1, 17)
         acct_type_info = get_acct_types(generate_acct_type)
         acct_type_id, (acct_type_name, acct_type_abbr) = generate_acct_type, acct_type_info
-        acct_num = generate_acct_num(generate_acct_type)
+
+        acct_num = generate_acct_nums(generate_acct_type)
+
         registration_name = f"{account_holder_name} {acct_type_name}"
+        
         account_nickname = f"{first_name} {acct_type_abbr}"
+        
         initial_contact = random.choice(["1", "2", "3", "4"])
              
         account_data = {
@@ -820,11 +907,11 @@ for i in tqdm(range(cust_records), desc=format_desc("Generating Clients"), bar_f
             "jurisdiction_country": generate_jurisdiction_country(),
             "jurisdiction_state": state_id,
             "acct_pass": generate_acct_pass(),
-            "poa_cust_id": generate_poa_cust_id(poa_random),
-            "poa_role": generate_poa_role(poa_random),
-            "poa_first_name": generate_poa_first_name(poa_random),
-            "poa_last_name": generate_poa_last_name(poa_random),
-            "poa_tax_id": generate_poa_tax_id(poa_random),
+            "poa_cust_id": generate_secondary_id(poa_num),
+            "poa_role": generate_poa_role(poa_num),
+            "poa_first_name": generate_poa_first_name(poa_num),
+            "poa_last_name": generate_poa_last_name(poa_num),
+            "poa_tax_id": generate_tax_id(poa_num),
             "acct_bal": acct_bal(acct_status),
             "online": online_banking,
             "mobile": mobile_banking,
@@ -833,12 +920,12 @@ for i in tqdm(range(cust_records), desc=format_desc("Generating Clients"), bar_f
             "atm_limit": generate_atm_limits(),
             "ach_limit": generate_ach_limits(),
             "wire_limit": generate_wire_limits(),
-            "client_since": client_since,
+            "client_since": cust_since,
             "acct_branch_id": closest_branch
         }
         accounts_data.append(account_data)
 
-    # Generate joint cutomer data
+    # Generate joint cutomer data if acct_type is joint
     if generate_acct_type in [8, 11, 14]:
         joint_data = {
             "cust_secondary_id": str(joint_secondary_id).zfill(10),
@@ -848,7 +935,7 @@ for i in tqdm(range(cust_records), desc=format_desc("Generating Clients"), bar_f
             "last_name": last_name,
             "suffix": generate_suffix(),
             "date_of_birth": joint_birth_date,
-            "client_since": client_since,
+            "client_since": cust_since,
             "is_organization": generate_is_organization(),
             "id_type": generate_id_types(),
             "cust_email": generate_joint_email(),
@@ -860,10 +947,10 @@ for i in tqdm(range(cust_records), desc=format_desc("Generating Clients"), bar_f
             "cust_state": state_id,
             "cust_zip": zip_id,
             "cust_country": generate_jurisdiction_country(),
-            "employment_status": generate_employment(generated_joint_num),
-            "employer_name": generate_joint_employer(generated_joint_num),
-            "occupation": joint_stripped_job,
-            "tax_id": generate_tax_id(),
+            "employment_status": generate_employment_status(joint_generated_num),
+            "employer_name": joint_employer_choice,
+            "occupation": generate_job(joint_generated_num),
+            "tax_id": generate_tax_id(is_cust),
             "dl_state": state_id,
             "dl_num": fake.passport_number(),
             "dl_exp": generate_exp_date(),
@@ -879,17 +966,18 @@ for i in tqdm(range(cust_records), desc=format_desc("Generating Clients"), bar_f
 
     # Generate beneficiary number between 1 and 4
     num_beneficiaries = random.randint(1, 4)
+    has_bene = 1
 
     for l in range(num_beneficiaries):
         bene_data = {
             "acct_num": acct_num,
-            "bene_cust_id": generate_bene_cust_id(),
+            "bene_cust_id": generate_secondary_id(has_bene),
             "bene_first_name": fake.first_name(),
             "bene_last_name": last_name,
-            "bene_tax_id": generate_bene_tax_id(),
+            "bene_tax_id": generate_tax_id(has_bene),
             "bene_relationship": generate_bene_relationship(),
             "bene_portion": generate_bene_portion(num_beneficiaries),
-            "client_since": client_since,
+            "client_since": cust_since,
         }
         beneficiaries_data.append(bene_data)
 
@@ -898,11 +986,13 @@ for account in tqdm(accounts_data, desc=format_desc("Generating Transactions"), 
     acct_num = account["acct_num"]
     acct_type = account["acct_type"]
     acct_bal_value = account["acct_bal"]
-    client_since = datetime.strptime(account["client_since"], "%Y-%m-%d")
+    cust_since = datetime.strptime(account["client_since"], "%Y-%m-%d")
     closed_date = datetime.strptime(account["closed_date"], "%Y-%m-%d") if account["closed_date"] else datetime.now()
     
     generated_dates = generate_transaction_dates()
-    stock_info, final_acct_balances = generate_transactions(acct_type, generated_dates, acct_bal_value)
+    
+    stock_info, final_acct_balances = generate_transactions(acct_num, acct_type, generated_dates, acct_bal_value)
+    
     holding_total(stock_info)
 
 # Generate employees
@@ -911,24 +1001,14 @@ for i in tqdm(range(emp_records), desc=format_desc("Generating Employees"), bar_
     emp_first_name = fake.first_name()
     emp_last_name = fake.last_name()
 
-    start_date = datetime(1970, 1, 1)
-    end_date = datetime(2023, 7, 12)
-    hire_date_math = start_date + timedelta(days=random.randint(0, (end_date - start_date).days))
-    years_to_subtract = random.randint(1, 80)
-    birth_date_math = hire_date_math - timedelta(days=years_to_subtract * 365)
-
-    if random.random() < 0.45:
-        termination_date_math = start_date + timedelta(days=random.randint(0, (end_date - start_date).days))
-    else:
-        termination_date_math = None
-
-    termination_reason_result = termination_reason(termination_date_math)
-    rehireable_result = rehireable(termination_reason_result)
-    hire_date = hire_date_math.strftime("%Y-%m-%d")
-    birth_date = birth_date_math.strftime("%Y-%m-%d")
+    cust_since, birth_date, joint_birth_date, closed_date_math, emp_birth_date, hire_date, termination_date_math = generate_dates() 
+    
+    termination_reason_result = get_termination_reason(termination_date_math)
+    rehireable_result = get_rehireable(termination_reason_result)
     emp_city, emp_state_id, emp_zip_id, position, main_client, salary = generate_zip_position_salary()
     emp_id = i + 1
     emp_secondary_id = i + 1
+    is_emp = 1
 
     # Generate employee data
     employee_data = {
@@ -937,7 +1017,7 @@ for i in tqdm(range(emp_records), desc=format_desc("Generating Employees"), bar_
         "emp_middle_name": generate_middle(),
         "emp_last_name": emp_last_name,
         "emp_suffix": generate_emp_suffix(),
-        "emp_date_of_birth": birth_date,
+        "emp_date_of_birth": emp_birth_date,
         "rep_id": generate_rep_id('employee'),
         "hire_date": hire_date,
         "termination_date": termination_date_math,
@@ -948,7 +1028,7 @@ for i in tqdm(range(emp_records), desc=format_desc("Generating Employees"), bar_
         "emp_city": emp_city,
         "emp_state": emp_state_id,
         "emp_zip": emp_zip_id,
-        "emp_tax_id": generate_emp_tax_id(),
+        "emp_tax_id": generate_tax_id(is_emp),
         "effective_date": hire_date,
         "salary_amount": salary,
         "position_location_id": position,
@@ -1294,41 +1374,41 @@ df_acct_holding = df_holding_info[[
     "average_cost"
 ]].copy()
 
-# transaction_acct_num_dict = {}
+transaction_acct_num_dict = {}
 
-# for index, row in tqdm(df_acct_transaction.iterrows(), total=df_acct_transaction.shape[0], desc=format_desc("Updating Transaction Account Number to Account ID"), bar_format=bar_format):
-#     acct_num = row['acct_num']
-#     if acct_num not in transaction_acct_num_dict:
-#         transaction_acct_num_dict[acct_num] = len(
-#             transaction_acct_num_dict) + 1
-#     df_acct_transaction.at[index, 'acct_num'] = transaction_acct_num_dict[acct_num]
+for index, row in tqdm(df_acct_transaction.iterrows(), total=df_acct_transaction.shape[0], desc=format_desc("Updating Transaction Account Number to Account ID"), bar_format=bar_format):
+    acct_num = row['acct_num']
+    if acct_num not in transaction_acct_num_dict:
+        transaction_acct_num_dict[acct_num] = len(
+            transaction_acct_num_dict) + 1
+    df_acct_transaction.at[index, 'acct_num'] = transaction_acct_num_dict[acct_num]
 
-# df_acct_transaction = df_acct_transaction.rename(
-#     columns={'acct_num': 'acct_id'})
+df_acct_transaction = df_acct_transaction.rename(
+    columns={'acct_num': 'acct_id'})
 
-# trade_acct_num_dict = {}
+trade_acct_num_dict = {}
 
-# for index, row in tqdm(df_acct_trade.iterrows(), total=df_acct_trade.shape[0], desc=format_desc("Updating Trade Account Number to Account ID"), bar_format=bar_format):
-#     acct_num = row['acct_num']
-#     if acct_num not in trade_acct_num_dict:
-#         trade_acct_num_dict[acct_num] = len(trade_acct_num_dict) + 1
-#     df_acct_trade.at[index, 'acct_num'] = trade_acct_num_dict[acct_num]
+for index, row in tqdm(df_acct_trade.iterrows(), total=df_acct_trade.shape[0], desc=format_desc("Updating Trade Account Number to Account ID"), bar_format=bar_format):
+    acct_num = row['acct_num']
+    if acct_num not in trade_acct_num_dict:
+        trade_acct_num_dict[acct_num] = len(trade_acct_num_dict) + 1
+    df_acct_trade.at[index, 'acct_num'] = trade_acct_num_dict[acct_num]
 
-# df_acct_trade = df_acct_trade.rename(columns={'acct_num': 'acct_id'})
+df_acct_trade = df_acct_trade.rename(columns={'acct_num': 'acct_id'})
 
-# stock_holdings_dict = {}
+stock_holdings_dict = {}
 
-# for index, row in tqdm(df_acct_holding.iterrows(), total=df_acct_holding.shape[0], desc=format_desc("Updating Stock Holding Account Number to Account ID"), bar_format=bar_format):
-#     acct_num = row['acct_num']
-#     if acct_num not in stock_holdings_dict:
-#         stock_holdings_dict[acct_num] = len(stock_holdings_dict) + 1
-#     df_acct_holding.at[index, 'acct_num'] = stock_holdings_dict[acct_num]
+for index, row in tqdm(df_acct_holding.iterrows(), total=df_acct_holding.shape[0], desc=format_desc("Updating Stock Holding Account Number to Account ID"), bar_format=bar_format):
+    acct_num = row['acct_num']
+    if acct_num not in stock_holdings_dict:
+        stock_holdings_dict[acct_num] = len(stock_holdings_dict) + 1
+    df_acct_holding.at[index, 'acct_num'] = stock_holdings_dict[acct_num]
 
-# df_acct_holding = df_acct_holding.rename(columns={'acct_num': 'acct_id'})
+df_acct_holding = df_acct_holding.rename(columns={'acct_num': 'acct_id'})
 
-# for i in tqdm(range(1), desc=format_desc("Dropping Empty Acct Holding Rows"), bar_format=bar_format):
-#     df_acct_holding.drop(
-#         df_acct_holding[df_acct_holding['quantity'] < 0].index, inplace=True)
+for i in tqdm(range(1), desc=format_desc("Dropping Empty Acct Holding Rows"), bar_format=bar_format):
+    df_acct_holding.drop(
+        df_acct_holding[df_acct_holding['quantity'] < 0].index, inplace=True)
 
 dataframes_acct_bal = [
     (df_acct_bal, "acct_bal.csv")

@@ -39441,7 +39441,6 @@ city_info = [
     [39436, 'Ketchikan', 'AK', 2, 99950, 56.3695, -131.93648],
 ]
 
-
 def generate_address():
     street_num = random.randint(1, 5999)
 
@@ -41818,7 +41817,6 @@ def generate_address():
 
     return f"{street_num} {random.choice(street_name)} {random.choice(street_suffix)}"
 
-
 def generate_address_2():
     address = ["Apt", "Suite", "Unit"]
 
@@ -41826,8 +41824,6 @@ def generate_address_2():
             if random.random() < 0.14 else None)
 
 # Employee Address/Position Generation
-
-
 def generate_emp_address():
     street_num = random.randint(1, 5999)
 
@@ -44204,13 +44200,11 @@ def generate_emp_address():
 
     return f"{street_num} {random.choice(street_name)} {random.choice(street_emp_suffix)}"
 
-
 def generate_emp_address_2():
     emp_address = ["Apt", "Suite", "Unit"]
 
     return (f"{random.choice(emp_address)} {random.randint(1,999)}"
             if random.random() < 0.14 else None)
-
 
 # Company Positions and Address
 # List of position_location_id, location_id, min_salary, max_salary, and main_client_access from Bank DB
@@ -48708,7 +48702,6 @@ comp_zips = [
     [534, 'Milford', 'MI', 23, 48380, 19232, 42.58077, -83.66211, 2],
     [535, 'Summit Station', 'PA', 39, 17979, 6490, 40.56151, -76.19974, 2],
 ]
-
 
 def generate_zip_position_salary():
     selected_location = random.choice(comp_zips)
