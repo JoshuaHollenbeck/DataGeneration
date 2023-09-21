@@ -124,9 +124,6 @@ def generate_exp_date():
 def generate_id_types():
     return random.randint(1, 5)
 
-def generate_is_organization():
-    return 1 if random.random() < 0 else 0
-
 generated_cust_id = set()
 
 def generate_secondary_id(num):
@@ -205,14 +202,14 @@ generated_acct_nums = set()
 def generate_acct_nums(acct_type_id):
     # Infinite loop to keep generating until a unique number is found.
     while True:
-        if acct_type_id in range(1, 8):
-            acct_num = random.randint(10000000, 25999999)
-        elif acct_type_id in range(8, 16):
-            acct_num = random.randint(26000000, 49999999)
-        elif acct_type_id == 16:
-            acct_num = int(f"4000{random.randint(50000000, 75999999)}")
+        random_num = random.randint(10000000, 99999999)
+
+        if acct_type_id == 16:
+            acct_num = int(f"4000{random_num}")
+        elif acct_type_id == 17:
+            acct_num = int(f"6000{random_num}")
         else:
-            acct_num = int(f"6000{random.randint(76000000, 99999999)}")
+            acct_num = random_num
 
         if acct_num not in generated_acct_nums:
             generated_acct_nums.add(acct_num)
@@ -332,17 +329,12 @@ def generate_rep_id(rep_status):
 
 def generate_atm_limits():
     atm_limits = [
-        "300",
-        "400",
         "500",
         "600",
         "700",
         "800",
         "900",
         "1000",
-        "1500",
-        "2000",
-        "3000",
     ]
     return random.choice(atm_limits)
 
@@ -354,14 +346,15 @@ def generate_ach_limits():
         "4000",
         "5000",
         "10000",
-        "25000",
-        "50000",
-        "100000"
+        "25000"
     ]
     return random.choice(ach_limits)
 
 def generate_wire_limits():
     wire_limits = [
+        "5000",
+        "10000",
+        "50000",
         "100000",
         "500000",
         "1000000",
@@ -793,6 +786,7 @@ for i in tqdm(range(cust_records), desc=format_desc("Generating Customers"), bar
     last_name = fake.last_name()
     is_cust = 1
     is_joint = 1
+    acct_restriction = 0
     
     # Customer city state zip lat and lon
     chosen_city = random.choice(city_info)
@@ -844,7 +838,6 @@ for i in tqdm(range(cust_records), desc=format_desc("Generating Customers"), bar
         "suffix": generate_suffix(),
         "date_of_birth": birth_date,
         "client_since": cust_since,
-        "is_organization": generate_is_organization(),
         "id_type": generate_id_types(),
         "cust_email": generate_email(),
         "cust_phone_home": generate_phone_home(),
@@ -895,6 +888,7 @@ for i in tqdm(range(cust_records), desc=format_desc("Generating Customers"), bar
             "acct_purpose": generate_purpose_of_account(),
             "acct_activity": generate_anticipated_activity(),
             "acct_nickname": account_nickname,
+            "acct_restriction": acct_restriction,
             "rep_id": generate_rep_id(initial_contact),
             "acct_status": acct_status,
             "closed_date": closed_date,
@@ -936,7 +930,6 @@ for i in tqdm(range(cust_records), desc=format_desc("Generating Customers"), bar
             "suffix": generate_suffix(),
             "date_of_birth": joint_birth_date,
             "client_since": cust_since,
-            "is_organization": generate_is_organization(),
             "id_type": generate_id_types(),
             "cust_email": generate_joint_email(),
             "cust_phone_home": generate_phone_home(),
@@ -1128,7 +1121,6 @@ df_cust_info = df_customer_info[[
     "suffix",
     "date_of_birth",
     "client_since",
-    "is_organization"
 ]].copy()
 
 dataframes_cust_info = [
@@ -1284,6 +1276,7 @@ df_acct_info = df_account_info[[
     "cust_id",
     "acct_nickname",
     "client_since",
+    "acct_restriction",
     "acct_status",
     "closed_date",
     "rep_id"
