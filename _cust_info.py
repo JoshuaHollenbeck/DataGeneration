@@ -129,7 +129,7 @@ generated_cust_id = set()
 def generate_secondary_id(num):
     while True:  # Infinite loop to keep generating until a unique number is found.
         if num == 1:
-            cust_id = random.randint(100000, 1000000000)            
+            cust_id = random.randint(100000, 999999999)            
 
             if cust_id not in generated_cust_id:
                 generated_cust_id.add(cust_id)
@@ -202,7 +202,7 @@ generated_acct_nums = set()
 def generate_acct_nums(acct_type_id):
     # Infinite loop to keep generating until a unique number is found.
     while True:
-        random_num = random.randint(10000000, 99999999)
+        random_num = random.randint(1000000000, 9999999999)
 
         if acct_type_id == 16:
             acct_num = int(f"4000{random_num}")
