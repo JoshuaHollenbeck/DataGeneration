@@ -538,10 +538,10 @@ def generate_transactions(acct_num, acct_type, generated_dates, acct_bal_value):
         if acct_type in range (1,8):
             transaction_type, transaction_info, amt_min, amt_max = get_transaction_details(acct_type)
             if transaction_info[0] == 4:
-                transaction_amt = round(sell_quantity * trade_price, 2)
+                transaction_amt = round(sell_quantity * trade_price, 4)
             else:
-                transaction_amt = round(random.uniform(amt_min, amt_max), 2)
-            buy_quantity = round(transaction_amt / trade_price, 4)
+                transaction_amt = round(random.uniform(amt_min, amt_max), 4)
+            buy_quantity = transaction_amt / trade_price
             
             if transaction_info[0] == 3:  # Buy
                 transaction_data = {
@@ -769,8 +769,8 @@ transactions_data = []
 holdings_data = []
 
 # Number of records to generate
-cust_records = 10
-emp_records = 10
+cust_records = 10000
+emp_records = 10000
 
 # tqdm Customization
 def format_desc(text, length=55):
@@ -1618,8 +1618,7 @@ df_emp_position = df_employee_info[[
     "emp_id",
     "position_location_id",
     "start_date",
-    "end_date",
-    "mc_access"
+    "end_date"
 ]].copy()
 
 dataframes_emp_position = [
