@@ -10531,6 +10531,6 @@ def generate_trade():
     lower_bound = selected_trade[2]
     upper_bound = selected_trade[3]
 
-    price = round(random.uniform(lower_bound, upper_bound), 2)
+    price = round(random.uniform(lower_bound, upper_bound), 4)
 
     return exchange, stock, price

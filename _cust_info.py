@@ -541,7 +541,7 @@ def generate_transactions(acct_num, acct_type, generated_dates, acct_bal_value):
                 transaction_amt = round(sell_quantity * trade_price, 4)
             else:
                 transaction_amt = round(random.uniform(amt_min, amt_max), 4)
-            buy_quantity = transaction_amt / trade_price
+            buy_quantity = round(transaction_amt / trade_price, 4)
             
             if transaction_info[0] == 3:  # Buy
                 transaction_data = {
@@ -604,9 +604,9 @@ def generate_transactions(acct_num, acct_type, generated_dates, acct_bal_value):
         elif acct_type in range (8, 16):
             transaction_type, transaction_info, amt_min, amt_max = get_transaction_details(acct_type)
             if transaction_info[0] == 4:
-                transaction_amt = round(sell_quantity * trade_price, 2)
+                transaction_amt = round(sell_quantity * trade_price, 4)
             else:
-                transaction_amt = round(random.uniform(amt_min, amt_max), 2)
+                transaction_amt = round(random.uniform(amt_min, amt_max), 4)
             buy_quantity = round(transaction_amt / trade_price, 4)
 
             if transaction_info[0] == 3:  # Buy
@@ -769,8 +769,8 @@ transactions_data = []
 holdings_data = []
 
 # Number of records to generate
-cust_records = 10000
-emp_records = 10000
+cust_records = 100
+emp_records = 100
 
 # tqdm Customization
 def format_desc(text, length=55):
