@@ -786,7 +786,6 @@ for i in tqdm(range(cust_records), desc=format_desc("Generating Customers"), bar
     last_name = fake.last_name()
     is_cust = 1
     is_joint = 1
-    acct_restriction = 0
     
     # Customer city state zip lat and lon
     chosen_city = random.choice(city_info)
@@ -888,7 +887,6 @@ for i in tqdm(range(cust_records), desc=format_desc("Generating Customers"), bar
             "acct_purpose": generate_purpose_of_account(),
             "acct_activity": generate_anticipated_activity(),
             "acct_nickname": account_nickname,
-            "acct_restriction": acct_restriction,
             "rep_id": generate_rep_id(initial_contact),
             "acct_status": acct_status,
             "closed_date": closed_date,
@@ -915,7 +913,22 @@ for i in tqdm(range(cust_records), desc=format_desc("Generating Customers"), bar
             "ach_limit": generate_ach_limits(),
             "wire_limit": generate_wire_limits(),
             "client_since": cust_since,
-            "acct_branch_id": closest_branch
+            "acct_branch_id": closest_branch,
+            "acct_escheat": 0, 
+            "acct_ownr_decsd": 0,
+            "anti_money_launder": 0,
+            "ct_order_collect": 0,
+            "ct_order_froze": 0,
+            "ct_order_garnish": 0,
+            "closed_by_bank": 0,
+            "closed_by_cust": 0,
+            "fraud": 0,
+            "inactive": 0,
+            "know_your_cust": 0,
+            "patriot_act": 0,
+            "pending_docs": 0,
+            "pending_toa_out": 0,
+            "undeliverable_mail": 0
         }
         accounts_data.append(account_data)
 
@@ -1276,7 +1289,6 @@ df_acct_info = df_account_info[[
     "cust_id",
     "acct_nickname",
     "client_since",
-    "acct_restriction",
     "acct_status",
     "closed_date",
     "rep_id"
@@ -1316,6 +1328,25 @@ for i in tqdm(range(1), desc=format_desc("Dropping Empty Power of Attorney Rows"
 
 for i in tqdm(range(1), desc=format_desc("Converting Power of Attorney Decimal to String"), bar_format=bar_format):
     df_acct_poa['poa_role'] = df_acct_poa['poa_role'].astype(str).replace('\.0', "", regex=True)
+
+df_acct_restrict = df_account_info[[
+    "acct_id",
+    "acct_escheat",
+    "acct_ownr_decsd",
+    "anti_money_launder",
+    "ct_order_collect",
+    "ct_order_froze",
+    "ct_order_garnish",
+    "closed_by_bank",
+    "closed_by_cust",
+    "fraud",
+    "inactive",
+    "know_your_cust",
+    "patriot_act",
+    "pending_docs",
+    "pending_toa_out",
+    "undeliverable_mail"
+]].copy()
 
 df_acct_limit = df_account_info[[
     "acct_id",
@@ -1439,6 +1470,10 @@ dataframes_acct_poa = [
     (df_acct_poa, "acct_poa.csv")
 ]
 
+dataframes_acct_restrict = [
+    (df_acct_restrict, "acct_restrict.csv")
+]
+
 dataframes_acct_limit = [
     (df_acct_limit, "acct_limit.csv")
 ]
@@ -1484,6 +1519,9 @@ for df, filename in tqdm(dataframes_acct_bene, desc=format_desc("Creating acct_b
     df.to_csv(filename, index=False)
 
 for df, filename in tqdm(dataframes_acct_poa, desc=format_desc("Creating acct_poa_.csv"), bar_format=bar_format):
+    df.to_csv(filename, index=False)
+
+for df, filename in tqdm(dataframes_acct_restrict, desc=format_desc("Creating acct_restrcit_.csv"), bar_format=bar_format):
     df.to_csv(filename, index=False)
 
 for df, filename in tqdm(dataframes_acct_limit, desc=format_desc("Creating acct_limit.csv"), bar_format=bar_format):
